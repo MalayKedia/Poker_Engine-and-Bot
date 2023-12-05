@@ -36,24 +36,24 @@ void begin_game(){
 
 }
 
-void collect_bet(player &p, int amount){   
-    if (p.money_in_hand<amount){
-        cout<<"Error, not enough balance in acc of "<<p.player_name<<" to pay "<<amount<<endl;
-        return;
-    }
-    p.money_in_hand-=amount;
-    p.bet_in_round+=amount;
-    pot_amount+=amount;
-    cout<<"Collecting bet of "<<amount<<" from "<<p.player_name<<", money left is "<<p.money_in_hand<<endl;
-    cout<<"The pot now is "<<pot_amount<<" and current bet is "<<current_bet<<endl;
-}
-
 void collect_small_large_blind(int starting_player_index=0){  //collects the small blind and large blind
     current_bet=small_blind;
-    collect_bet(*players_in_game[starting_player_index], small_blind);
-    current_bet*=2;
-    collect_bet(*players_in_game[(starting_player_index+1)%no_of_players], small_blind*2);
-    cout<<endl;
+    if (!(players_in_game[starting_player_index]->collect_bet(small_blind))){
+            players_in_game[starting_player_index]->fold();
+            
+            collect_small_large_blind(starting_player_index);
+    }
+    else collect_large_blind(starting_player_index);
+}
+
+void collect_large_blind(int starting_player_index){
+        current_bet=2*small_blind;
+        if(!(players_in_game[(starting_player_index+1)%no_of_players]->collect_bet(small_blind*2))){
+            players_in_game[(starting_player_index+1)%no_of_players]->fold();
+
+            collect_large_blind(starting_player_index);
+        }
+        cout<<endl;
 }
 
 void initialise_round(){
@@ -62,6 +62,24 @@ void initialise_round(){
     current_bet=0;
 }
 
-void initiate_betting(player* player_current_turn=players_in_game[0]){
-    
+bool round_over(){
+    bool over=true;
+    for (int i=0; i<players_in_game.size(); i++) over=over&&(players_in_game[i]->bet_in_round=current_bet);
+    return over;
+}
+
+void initiate_betting(int start_index=0){
+    vector<player*>:: iterator plr = players_in_game.begin()+start_index%players_in_game.size();
+
+    for(; plr<=players_in_game.end(); plr++){
+        plr[0]->play_move();
+    }    
+
+    while (!round_over()){
+        player* player_move=*plr;
+        player_move->play_move();
+
+        if (plr!=players_in_game.end()) plr++;
+        else plr=players_in_game.begin();
+    }
 }

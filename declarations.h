@@ -52,6 +52,13 @@ struct player{
     player(int id, string name);
     player(int id);
 
+    bool collect_bet(int amount);
+
+    virtual void play_move(){};
+    
+    bool raise(int raise_amount);
+    void fold();
+
 };
 
 deck undealed_cards, community_cards;               //decks as name suggests
@@ -69,12 +76,28 @@ extern vector<player*> players_in_game;
 struct bot: public player       //subclass of player, autoplayed by computer
 {
     bot(int id);    
+    void play_move() override;
+
 };
 
 struct user: public player      //subclass of player, played by user
 {
     user(int id, string name);
+    void play_move() override;
+        
 };
 
+//Declarations of all functions defined:
 
+void reorder_players_in_game(int starting_player_index);       //reorders the players in game st it starts from player we want
+void deal_cards(int number, deck &hand);                       //number is number of cards to deal to the deck hand
+
+void begin_game();                                             //sets undealed card deck to standard 52 deck and deals 5 cards to community
+   
+void collect_small_large_blind(int starting_player_index);
+void collect_large_blind(int starting_player_index);
+
+void initialise_round();
+bool round_over();
+void initiate_betting(int start_index);
 #endif

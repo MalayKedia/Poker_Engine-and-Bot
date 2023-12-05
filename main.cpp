@@ -20,7 +20,7 @@ int main(){
     collect_small_large_blind();
 
     player* player_current_turn=players_in_game[2%no_of_players];
-    initiate_betting(player_current_turn);
+    initiate_betting(2);
 
     if (players_in_game.size()>1){
         cout<<"Round two of betting begins: \n\nDealing the flop:\n";
