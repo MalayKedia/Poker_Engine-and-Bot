@@ -1,6 +1,14 @@
 #include "declarations.h"
 
-void deal_cards(int number, deck &hand){ //number is number of cards to deal to the deck hand 
+void reorder_players_in_game(int starting_player_index){       //reorders the players in game st it starts from player we want
+    vector<player*> new_list;
+    for (int i=0; i<players_in_game.size(); i++){
+        new_list.push_back(players_in_game[(starting_player_index+i)%players_in_game.size()]);
+    }
+    players_in_game=new_list;
+}
+
+void deal_cards(int number, deck &hand){                        //number is number of cards to deal to the deck hand 
 
     for (int i=0; i<number; i++){
         bool undealed_card_found;
@@ -16,17 +24,19 @@ void begin_game(){
 
     srand(time(NULL));
 
+    //setting undealed card deck to standard 52 deck
     for (int i=0; i<13;i++){
        for (int j=0; j<4; j++){
             undealed_cards.add(card(j,i));
         }
     }
+    //dealing 5 cards to community cards
     deal_cards(5, community_cards);
     pot_amount=0;
 
 }
 
-void collect_bet(player &p, int amount){
+void collect_bet(player &p, int amount){   
     if (p.money_in_hand<amount){
         cout<<"Error, not enough balance in acc of "<<p.player_name<<" to pay "<<amount<<endl;
         return;
@@ -38,7 +48,7 @@ void collect_bet(player &p, int amount){
     cout<<"The pot now is "<<pot_amount<<" and current bet is "<<current_bet<<endl;
 }
 
-void collect_small_large_bet(int starting_player_index){
+void collect_small_large_blind(int starting_player_index=0){  //collects the small blind and large blind
     current_bet=small_blind;
     collect_bet(*players_in_game[starting_player_index], small_blind);
     current_bet*=2;
@@ -52,6 +62,6 @@ void initialise_round(){
     current_bet=0;
 }
 
-void initiate_betting(){
+void initiate_betting(player* player_current_turn=players_in_game[0]){
     
 }

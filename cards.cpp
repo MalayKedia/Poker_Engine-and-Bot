@@ -3,6 +3,7 @@
 card::card(int s, int v): suit(s), value(v){}
 
 ostream & operator<<(ostream &ost, card const &c){
+    //tells how to interpret value of card as humans read it
         ost<<"\t";
         if (c.value<=8) ost<<c.value+2;
         else if (c.value==9) ost<<"Jack";
@@ -43,21 +44,18 @@ void deck::add(card c){
 }
 bool deck::remove (card c){
 
-    int index=deck_size;     //if we find no such card, we ll get an error
+    int index=deck_size;                        //if we find no such card, index doesnt change and stays deck_size
     for (int i=0; i<deck_size; i++) if (card_list[i]==c) index=i; 
     
-    if (index==deck_size) return false;
+    if (index==deck_size) return false;         //if index didnt change it means func returns false
     
     card_list.erase(card_list.begin()+index);
     deck_size--;
     return true;
 }
 
-void deck::print(int number, int start=0)//prints cards from index start to start+number
-{
-    for (int i=start; i<start+number; i++){
-        cout<<card_list[i];
-    }
+void deck::print(int number, int start=0) {      //prints cards from index start to start+number-1
+    for (int i=start; i<start+number; i++) cout<<card_list[i]; 
 }
 
 ostream & operator<<(ostream &ost, deck const &d){
