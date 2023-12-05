@@ -10,46 +10,71 @@
 #include <iostream>
 using namespace std;
 
+#define no_of_players 5
+#define small_blind 10
+
 struct card{
     int suit, value;
     //suit lies between 0 and 3, and value lies between 0 and 12
 
     card(int, int);
+    //constructor for card
 
     friend ostream & operator<<(ostream &ost, card const &c);
     friend bool operator==(card const &c1, card const &c2);
 };
 
 struct deck{
-//This contains a list of cards
+//This contains a list of cards as a vector and the size of the deck as deck size
+
 vector<card> card_list;
 int deck_size;
 
-deck();
-deck(deck const &d);
+deck();                    //default constructor
+deck(deck const &d);       //copy constructor
 
-void add(card c);
-bool remove (card c);
+void add(card c);           //function to add a card c to deck
+bool remove (card c);       //fuction returns false if card c is not in deck, and if c is in deck, it removes it and returns true
+
+void print(int number, int start);      //prints cards from index start to start+number-1 in the deck
 
 friend ostream & operator<<(ostream &ost, deck const &d);
 
 };
 
 struct player{
-    int player_ID;
-    string player_name;
-    deck player_hand;
-    double money_in_hand;
+    int player_ID;                    //unique id for the player
+    string player_name;               //name to be printed on the screen while refering to this player
+    deck player_hand;                 //cards in hand of player, always a deck of size 2
+    bool in_game;                     //returns false if player has folded
+    int money_in_hand, bet_in_round;  
 
     player(int id, string name);
     player(int id);
+
 };
 
+deck undealed_cards, community_cards;               //decks as name suggests
+int pot_amount, current_bet;                        //pot amt is total amt betted till the moment, and current bet is bet at that round
 
-deck undealed_cards, board_cards;
-extern deck undealed_cards, board_cards;        //global variable
+//global variable declaration
+extern deck undealed_cards, community_cards;        
+extern int pot_amount, current_bet;
 
-//double total_bet_on_board=0, bet_amount;
-//extern double total_bet_on_board, bet_amount;
+//list of all players who havent folded
+vector<player*> players_in_game;
+extern vector<player*> players_in_game;
+
+
+struct bot: public player       //subclass of player, autoplayed by computer
+{
+    bot(int id);    
+};
+
+struct user: public player      //subclass of player, played by user
+{
+    user(int id, string name);
+};
+
 
 #endif

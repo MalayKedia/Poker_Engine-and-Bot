@@ -20,6 +20,7 @@ ostream & operator<<(ostream &ost, card const &c){
             case 3: ost<<"Spades"; break;
             default: ost<<"NA"; break;
         }
+        ost<<endl;
         return ost;
     }
 bool operator==(card const &c1, card const &c2){
@@ -50,6 +51,13 @@ bool deck::remove (card c){
     card_list.erase(card_list.begin()+index);
     deck_size--;
     return true;
+}
+
+void deck::print(int number, int start=0)//prints cards from index start to start+number
+{
+    for (int i=start; i<start+number; i++){
+        cout<<card_list[i];
+    }
 }
 
 ostream & operator<<(ostream &ost, deck const &d){
