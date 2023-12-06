@@ -1,18 +1,10 @@
 #include "declarations.h"
 
-player::player(int id, string name): player_ID(id), player_name(name), in_game(true), bet_in_round(0)
-{   deal_cards(2,player_hand);
-    cout<<"Money in account of "<<player_name<<" :";
-    cin>>money_in_hand;
-    players_in_game.push_back(this);
-}
-
-player::player(int id): player_ID(id), in_game(true), bet_in_round(0)
-{   player_name="Bot "+to_string(id);
+player::player(): player_ID(no_of_players_static), in_game(true), bet_in_round(0){
     deal_cards(2,player_hand);
-    cout<<"Money in account of "<<player_name<<" :";
-    cin>>money_in_hand;
     players_in_game.push_back(this);
+    all_players.push_back(this);
+    no_of_players_static++;
 }
 
 bool player::collect_bet(int amount){   
@@ -23,14 +15,24 @@ bool player::collect_bet(int amount){
     money_in_hand-=amount;
     bet_in_round+=amount;
     pot_amount+=amount;
-    cout<<"Collecting bet of "<<amount<<" from "<<player_name<<", money left is "<<money_in_hand<<endl;
-    cout<<"The pot now is "<<pot_amount<<" and current bet is "<<current_bet<<endl;
+    cout<<"Collecting bet of "<<amount<<" from "<<player_name<<", money left in account of "<<player_name<<" is "<<money_in_hand<<endl;
+    cout<<"The pot now is "<<pot_amount<<endl;
 
     return true;
 }
 
+void player::check(){
+    cout<<player_name<<" chose to check, passing turn to next player\n";
+}
+
 bool player::raise(int raise_amount){
-    return (this->collect_bet(current_bet+raise_amount- bet_in_round));
+    bool raise_possible= (this->collect_bet(current_bet+raise_amount- bet_in_round));
+    if (raise_possible) {
+      current_bet+=raise_amount;
+      cout<<"Successfully raised by "<<raise_amount<<", the current bet now is "<<current_bet<<endl;
+    }
+    else cout<<"Cannot raise by "<<raise_amount<<" ,try again\n";
+    return raise_possible;
 }
 
 void player::fold(){

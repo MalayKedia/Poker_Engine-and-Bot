@@ -10,7 +10,6 @@
 #include <iostream>
 using namespace std;
 
-#define no_of_players 5
 #define small_blind 10
 
 struct card{
@@ -28,18 +27,21 @@ struct deck{
 //This contains a list of cards as a vector and the size of the deck as deck size
 
 vector<card> card_list;
-int deck_size;
 
-deck();                    //default constructor
-deck(deck const &d);       //copy constructor
+    deck();                    //default constructor
+    deck(deck const &d);       //copy constructor
 
-void add(card c);           //function to add a card c to deck
-bool remove (card c);       //fuction returns false if card c is not in deck, and if c is in deck, it removes it and returns true
+    void add(card c);           //function to add a card c to deck
+    void remove (int i);        //function to remove card of index i
+    bool remove (card c);       //fuction returns false if card c is not in deck, and if c is in deck, it removes it and returns true
 
-void print(int number, int start);      //prints cards from index start to start+number-1 in the deck
+    deck operator+(deck const d) const;
+    friend ostream & operator<<(ostream &ost, deck const &d);
+    void print(int number);      //prints cards from index 0 to number-1 in the deck
+    void print();                           //prints whole deck
 
-friend ostream & operator<<(ostream &ost, deck const &d);
-
+    int deck_five_value();            //It operates on a deck of 5 cards and returns a 5 digit no, highest digit being deck rank, next 2 being high card and next 2 being next high card 
+    int deck_seven_value();
 };
 
 struct player{
@@ -48,18 +50,23 @@ struct player{
     deck player_hand;                 //cards in hand of player, always a deck of size 2
     bool in_game;                     //returns false if player has folded
     int money_in_hand, bet_in_round;  
+    static int no_of_players_static;
 
-    player(int id, string name);
-    player(int id);
+    player();
 
-    bool collect_bet(int amount);
+    bool collect_bet(int amount);      //
 
-    virtual void play_move(){};
+    virtual void play_move() {};
     
+    void check();
     bool raise(int raise_amount);
     void fold();
 
 };
+int player::no_of_players_static=0;
+
+int no_of_players;
+extern int no_of_players;
 
 deck undealed_cards, community_cards;               //decks as name suggests
 int pot_amount, current_bet;                        //pot amt is total amt betted till the moment, and current bet is bet at that round
@@ -69,20 +76,20 @@ extern deck undealed_cards, community_cards;
 extern int pot_amount, current_bet;
 
 //list of all players who havent folded
-vector<player*> players_in_game;
-extern vector<player*> players_in_game;
+vector<player*> players_in_game, all_players;
+extern vector<player*> players_in_game, all_players;
 
 
 struct bot: public player       //subclass of player, autoplayed by computer
 {
-    bot(int id);    
+    bot();    
     void play_move() override;
 
 };
 
 struct user: public player      //subclass of player, played by user
 {
-    user(int id, string name);
+    user();
     void play_move() override;
         
 };
@@ -90,14 +97,18 @@ struct user: public player      //subclass of player, played by user
 //Declarations of all functions defined:
 
 void reorder_players_in_game(int starting_player_index);       //reorders the players in game st it starts from player we want
+void bubbleSort_descending(const int inputArr[], int sortedArr[], int n);
 void deal_cards(int number, deck &hand);                       //number is number of cards to deal to the deck hand
 
-void begin_game();                                             //sets undealed card deck to standard 52 deck and deals 5 cards to community
-   
-void collect_small_large_blind(int starting_player_index);
+void begin_game();                                             //sets undealed card deck to standard 52 deck, asks for no. of players and deals 5 cards to community
+
+//starts the pre-flop round by taking default set small and large blind values from players at starting_player_index and next (if possible)
+void collect_small_and_large_blind(int starting_player_index); 
 void collect_large_blind(int starting_player_index);
 
-void initialise_round();
-bool round_over();
-void initiate_betting(int start_index);
+void initialise_round();                                       //sets current bet and round bets of each player to be zero before start of betting 
+bool betting_round_over();                                     //returns true if bet in round of each player in game matches current bet
+void initiate_betting(int start_index);                        //continues betting round until round isnt over
+
+
 #endif

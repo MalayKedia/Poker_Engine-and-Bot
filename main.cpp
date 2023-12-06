@@ -9,15 +9,20 @@ int main(){
 
     begin_game();
     //I assume no of players in game is 5
-    user p1(1, "Malay");
-    bot p2(2), p3(3), p4(4), p5(5);
+    user u;
+    bot b[no_of_players-1];
 
-    cout<<endl<<"The small blind is "<<small_blind<<" and large bet is "<<2*small_blind<<endl;
+    cout<<endl<<"Round one of betting begins (pre-flop): \n";
+    cout<<"The small blind is "<<small_blind<<" and large blind is "<<2*small_blind<<endl;
     int starting_player_index=no_of_players*(rand()/(1.0+RAND_MAX));
     reorder_players_in_game(starting_player_index);
 
-    cout<<"Starting at player "<<players_in_game[0]->player_name<<endl;
-    collect_small_large_blind();
+    cout<<"Starting at player "<<players_in_game[0]->player_name<<endl<<endl;
+    collect_small_and_large_blind();
+
+    cout<<"Your cards are :\n";
+    u.player_hand.print();  
+    cout<<endl;
 
     player* player_current_turn=players_in_game[2%no_of_players];
     initiate_betting(2);
@@ -45,10 +50,9 @@ int main(){
         }
     }
 
-    if (players_in_game.size()==1){
-        cout<<"Player "<<players_in_game[0]<<" has won the game\n";
-    }
+    vector<player*> winning_players;
+    if (players_in_game.size()==1) winning_players.push_back(players_in_game[0]);
+    else void showdown(vector<player*> winning_players);
 
-    else{//
-    }
+    end_game(winning_players);
 }
