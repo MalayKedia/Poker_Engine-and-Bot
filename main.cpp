@@ -52,7 +52,7 @@ int main(){
 
     vector<player*> winning_players;
     if (players_in_game.size()==1) winning_players.push_back(players_in_game[0]);
-    else showdown(vector<player*> winning_players);
+    else showdown(winning_players);
 
     end_game(winning_players);
 }

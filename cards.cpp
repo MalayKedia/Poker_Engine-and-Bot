@@ -67,7 +67,7 @@ deck deck::operator+(deck const d) const{
 }
 
 ostream & operator<<(ostream &ost, deck const &d){
-    for (int i=0; i<d.card_list.size(); i++) ost<<d.card_list[i]<<endl;
+    for (int i=0; i<d.card_list.size(); i++) ost<<d.card_list[i];
     return ost;
 }
 
