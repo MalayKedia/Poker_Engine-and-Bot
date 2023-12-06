@@ -2,7 +2,7 @@
 
 bot::bot(): player()
 {   player_name="Bot "+to_string(player_ID);
-    deal_cards(2,player_hand);
+    
     cout<<"Money in account of "<<player_name<<" : ";
     cin>>money_in_hand;
 }

@@ -80,6 +80,7 @@ void deck::print(){
 } 
 
 int deck::deck_five_value(){
+    assert(this->card_list.size()==5);
    /*Hundreds value:
     High card- 0, Pair- 1, Two pair- 2, Three of a kind- 3, Straight- 4, Flush- 5, Full House- 6, 4 of a kind- 7, Straight Flush- 8 */
    
@@ -156,6 +157,7 @@ int deck::deck_five_value(){
 }
 
 int deck::deck_seven_value(){
+    assert(this->card_list.size()==7);
     int val=0;
     for (int i=0; i<7; i++){
         for (int j=i+1; j<7; j++){

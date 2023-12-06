@@ -127,16 +127,15 @@ void initiate_betting(int start_index=0){
     }
 }
 
-void showdown(vector<player*> winning_players){     //returns the vector having winning players
+void showdown(vector<player*> &winning_players){     //returns the vector having winning players
     cout<<"Starting the showdown: \n\n";
 
     vector<int> scores;
     for (vector<player*> ::iterator plr=players_in_game.begin(); plr<players_in_game.end(); plr++){
-        cout<<"cards of "<<plr[0]->player_name<<" are:\n"<<plr[0]->player_hand;
         deck seven_cards=plr[0]->player_hand + community_cards;
         scores.push_back(seven_cards.deck_seven_value());
+        cout<<"cards of "<<plr[0]->player_name<<" are:\n"<<plr[0]->player_hand;
     }
-    
     int max_score=0;
     for (int index=0; index<players_in_game.size(); index++){
         max_score=max(max_score, scores[index]);
