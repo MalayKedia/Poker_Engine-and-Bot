@@ -8,14 +8,15 @@
 int main(){
 
     set_up_game_environment();
-    user u;
-    bot b[no_of_players-1];
-    set_up_game_environment_cont();
-    char next_game;
-
+    user u; bot b[no_of_players-1];
+    select_starting_player();
+    
+    bool next_game_possible;
     do{
-        cout<<endl<<"Round one of betting begins (pre-flop): \n";
+        cout<<"Round one of betting begins (pre-flop): \n\n";
         collect_small_and_large_blind();
+
+        deal_cards_to_players();
         cout<<"Your cards are :\n"<<u.player_hand<<endl;
         initiate_betting_preflop();
 
@@ -28,6 +29,7 @@ int main(){
             initiate_betting();
 
             if (players_in_game.size()>1){
+                large_blind*=2;
                 cout<<"Round three of betting begins: \n\nDealing the turn:\n";
                 community_cards.deal_random_cards(1);
                 community_cards.print();
@@ -50,10 +52,9 @@ int main(){
         else showdown(winning_players);
         end_game(winning_players);
 
-        next_game=ask_if_continue();
-
-        if (next_game='y') 
-        reset_for_next_game();
+        next_game_possible=false;
+        if (ask_if_continue()) next_game_possible=reset_for_next_game();
     }
-    while(next_game=='y');
+    while(next_game_possible);
+    cout<<"\nThank you for playing\n";
 }

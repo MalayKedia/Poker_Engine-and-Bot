@@ -2,8 +2,8 @@
 
 card::card(int s, int v): suit(s), value(v){}
 
-ostream & operator<<(ostream &ost, card const &c){
-    //tells how to interpret value of card as humans read it
+ostream & operator<<(ostream &ost, card const &c) //tells how to interpret value of card as humans read it
+{
         ost<<"\t";
         if (c.value<=8) ost<<c.value+2;
         else if (c.value==9) ost<<"Jack";
@@ -23,28 +23,27 @@ ostream & operator<<(ostream &ost, card const &c){
         }
         ost<<endl;
         return ost;
-    }
-bool operator==(card const &c1, card const &c2){
-            if (c1.suit==c2.suit && c1.value==c2.value) return true;
-            else return false;
-    }
+}
+bool operator==(card const &c1, card const &c2)
+{
+    if (c1.suit==c2.suit && c1.value==c2.value) return true;
+    else return false;
+}
 
 deck::deck(){}
 
-deck::deck(deck const &d){
+deck::deck(deck const &d)
+{
     card_list=d.card_list;
 }
 
-void deck::add(card c){
+void deck::add(card c) //function to add a card c to deck
+{
     card_list.push_back(c);
 }
 
-void deck::remove (int i){
-    remove(card_list[i]);
-}
-
-bool deck::remove (card c){
-
+bool deck::remove (card c) //fuction returns false if card c is not in deck, and if c is in deck, it removes it and returns true
+{
     int deck_size=card_list.size();
     int index=deck_size;                        //if we find no such card, index doesnt change and stays deck_size
     for (int i=0; i<deck_size; i++) if (card_list[i]==c) index=i; 
@@ -55,7 +54,13 @@ bool deck::remove (card c){
     return true;
 }
 
-void deck::deal_random_cards(int number){                        //number is number of cards to deal from the undealed deck
+void deck::remove (int i) //function to remove card at i th position in vector
+{
+    remove(card_list[i]);
+}
+
+void deck::deal_random_cards(int number)  //adds 'number' of random caards to deck from the undealed_cards deck
+{
     for (int i=0; i<number; i++){
         bool undealed_card_found;
         do{
@@ -66,7 +71,8 @@ void deck::deal_random_cards(int number){                        //number is num
     }
 }
 
-void deck::submit(){
+void deck::submit() //empties the deck and adds all cards to undealed_cards deck
+{
     while(card_list.size()!=0){
         undealed_cards.add(card_list[0]);
         this->remove(card_list[0]);
@@ -89,15 +95,13 @@ ostream & operator<<(ostream &ost, deck const &d){
     return ost;
 }
 
-void deck::print(int number) {      //prints cards from index start to start+number-1
-    for (int i=0; i<number; i++) cout<<card_list[i]; 
+void deck::print() //prints whole deck
+{
+    for (int i=0; i<card_list.size(); i++) cout<<card_list[i]; 
 }
 
-void deck::print(){
-    print(card_list.size());
-} 
-
-int deck::deck_five_value(){
+int deck::deck_five_value() //operates on a deck of 5 cards and returns a 5 digit no, highest digit being deck rank, next 2 being high card and next 2 being next high card 
+{
     assert(this->card_list.size()==5);
    /*Hundreds value:
     High card- 0, Pair- 1, Two pair- 2, Three of a kind- 3, Straight- 4, Flush- 5, Full House- 6, 4 of a kind- 7, Straight Flush- 8 */
@@ -174,7 +178,8 @@ int deck::deck_five_value(){
     return hundreds_place*10000+tens_place*100+ones_place;
 }
 
-int deck::deck_seven_value(){
+int deck::deck_seven_value() //operates on deck of 7 cards and returns highest possible score
+{
     assert(this->card_list.size()==7);
     int val=0;
     for (int i=0; i<7; i++){
