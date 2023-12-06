@@ -60,4 +60,3 @@ void user::play_move(){
         }
     }
 }
-

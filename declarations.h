@@ -11,6 +11,7 @@
 using namespace std;
 
 #define small_blind 10
+#define large_blind 10
 
 struct card{
     int suit, value;
@@ -35,9 +36,12 @@ vector<card> card_list;
     void remove (int i);        //function to remove card of index i
     bool remove (card c);       //fuction returns false if card c is not in deck, and if c is in deck, it removes it and returns true
 
+    void deal_random_cards(int number);      //number is number of cards to deal from the undealed deck
+    void submit();                           //all cards are removed from deck and added to undealed cards deck
+
     deck operator+(deck const d) const;
     friend ostream & operator<<(ostream &ost, deck const &d);
-    void print(int number);      //prints cards from index 0 to number-1 in the deck
+    void print(int number);                 //prints cards from index 0 to number-1 in the deck
     void print();                           //prints whole deck
 
     int deck_five_value();            //It operates on a deck of 5 cards and returns a 5 digit no, highest digit being deck rank, next 2 being high card and next 2 being next high card 
@@ -53,6 +57,7 @@ struct player{
     static int no_of_players_static;
 
     player();
+ //   ~player();
 
     bool collect_bet(int amount);      //
 
@@ -65,15 +70,14 @@ struct player{
 };
 int player::no_of_players_static=0;
 
-int no_of_players;
-extern int no_of_players;
-
 deck undealed_cards, community_cards;               //decks as name suggests
 int pot_amount, current_bet;                        //pot amt is total amt betted till the moment, and current bet is bet at that round
+int no_of_players, starting_player_index;
 
 //global variable declaration
 extern deck undealed_cards, community_cards;        
 extern int pot_amount, current_bet;
+extern int no_of_players, starting_player_index;
 
 //list of all players who havent folded
 vector<player*> players_in_game, all_players;
@@ -98,7 +102,6 @@ struct user: public player      //subclass of player, played by user
 
 void reorder_players_in_game(int starting_player_index);       //reorders the players in game st it starts from player we want
 void bubbleSort_descending(const int inputArr[], int sortedArr[], int n);
-void deal_cards(int number, deck &hand);                       //number is number of cards to deal to the deck hand
 
 void begin_game();                                             //sets undealed card deck to standard 52 deck, asks for no. of players and deals 5 cards to community
 

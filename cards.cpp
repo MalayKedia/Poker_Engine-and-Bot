@@ -55,6 +55,24 @@ bool deck::remove (card c){
     return true;
 }
 
+void deck::deal_random_cards(int number){                        //number is number of cards to deal from the undealed deck
+    for (int i=0; i<number; i++){
+        bool undealed_card_found;
+        do{
+            int n=rand_int_v_u(52);
+            undealed_card_found=undealed_cards.remove(card(n/13,n%13));
+            if (undealed_card_found) add(card(n/13,n%13));
+        } while (!undealed_card_found);
+    }
+}
+
+void deck::submit(){
+    while(card_list.size()!=0){
+        undealed_cards.add(card_list[0]);
+        this->remove(card_list[0]);
+    }
+}
+
 deck deck::operator+(deck const d) const{
     deck sum;
     sum.card_list=card_list;

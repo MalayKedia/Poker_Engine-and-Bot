@@ -1,11 +1,18 @@
 #include "declarations.h"
 
 player::player(): player_ID(no_of_players_static), in_game(true), bet_in_round(0){
-    deal_cards(2,player_hand);
+    player_hand.deal_random_cards(2);
     players_in_game.push_back(this);
     all_players.push_back(this);
     no_of_players_static++;
 }
+
+/*
+player::~player(){
+  no_of_players_static--;
+  player_hand.submit();
+  cout<<"\n\n\nDestructor for player called, INVALID\n\n";
+}*/
 
 bool player::collect_bet(int amount){   
     if (money_in_hand<amount){
