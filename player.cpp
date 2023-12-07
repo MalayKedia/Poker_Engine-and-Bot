@@ -1,6 +1,6 @@
 #include "declarations.h"
 
-player::player(): player_ID(no_of_players_static), in_game(true), bet_in_round(0)
+player::player(): player_ID(no_of_players_static), in_game(true), played_first_move_in_round(false) , bet_in_round(0)
 {
     players_in_game.push_back(this);
     all_players.push_back(this);
@@ -11,7 +11,6 @@ player::~player()
 {
   no_of_players_static--;
   player_hand.submit();
-  cout<<"\n\n\nDestructor for player called, INVALID\n\n";
 }
 
 bool player::collect_bet(int amount) //returns false if player doesnt have enough balance to raise by amount, else returns true, deducts the amount from players balance and adds it to pot

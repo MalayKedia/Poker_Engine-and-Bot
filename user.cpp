@@ -16,6 +16,7 @@ user::user(): player()
 
 void user::play_move()
 {
+    played_first_move_in_round=true;
     char move;
     while(true){
         if (current_bet==0) cout<<"Possible moves are check (c), open (o), fold(f)\n";
@@ -35,14 +36,14 @@ void user::play_move()
             break;
         }
         case 'r':{
-            cout<<"You have raised by "<<large_blind<<endl;
-            if (!(this->raise(large_blind))) this->play_move();
+            cout<<"You have raised by "<<bet_amount<<endl;
+            if (!(this->raise(bet_amount))) this->play_move();
             break;
         }
 
         case 'o':{
-            cout<<"You have opened by "<<large_blind<<endl;
-            if (!(this->raise(large_blind))) this->play_move();
+            cout<<"You have opened by "<<bet_amount<<endl;
+            if (!(this->raise(bet_amount))) this->play_move();
             break;
         }
 

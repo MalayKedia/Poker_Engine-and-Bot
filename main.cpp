@@ -1,9 +1,9 @@
 #include "declarations.h"
-#include "game.cpp"
-#include "cards.cpp"
-#include "players.cpp"
+#include "card_and_deck.cpp"
+#include "player.cpp"
 #include "bot.cpp"
 #include "user.cpp"
+#include "game_functions.cpp"
 
 int main(){
 
@@ -29,7 +29,7 @@ int main(){
             initiate_betting();
 
             if (players_in_game.size()>1){
-                large_blind*=2;
+                bet_amount*=2;
                 cout<<"Round three of betting begins: \n\nDealing the turn:\n";
                 community_cards.deal_random_cards(1);
                 community_cards.print();

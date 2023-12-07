@@ -11,7 +11,7 @@
 using namespace std;
 
 #define small_blind 10
-#define large_blind_stored 20
+#define large_blind 20
 #define max_no_of_raises 3
 
 struct card
@@ -52,6 +52,7 @@ struct player //It is assumed that there is no element uniquely in class player,
     string player_name;               //name to be printed on the screen while refering to this player
     deck player_hand;                 //cards in hand of player, always a deck of size 2
     bool in_game;                     //false if player has folded or is out of game
+    bool played_first_move_in_round;  //true after placing first bet in each round
     int money_in_hand;                //money in hand of player
     int bet_in_round;                 //amount bet by player in round till the moment
     
@@ -84,8 +85,8 @@ int pot_amount;
 int current_bet, no_of_raises; 
 //current_bet is bet every player has to match to stay in the game
 //no_of_raises is the no of raises made in that round
-int large_blind;
-//large_blind after round 2 actually stores large blind*2
+int bet_amount;
+//is equal to large_blind during first 2 rounds and after round 2 equals large blind*2
 
 //global variable declaration
 extern deck undealed_cards, community_cards;        
@@ -109,7 +110,7 @@ struct user: public player      //subclass of player, played by user
 
 //Declarations of all functions defined:
 
-int rand_int_v_u(int v, int u);                              //This function returns random integer from u to v-1
+int rand_int_v_u(int v, int u=0);                              //This function returns random integer from u to v-1
 void bubbleSort_descending(const int inputArr[], int sortedArr[], int n);
 void reorder_players_in_game(int starting_player_index);       //circularly reorders the list players_in_game st it starts from player at index given
 

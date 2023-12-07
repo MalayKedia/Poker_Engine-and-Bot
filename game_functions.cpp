@@ -1,6 +1,6 @@
 #include "declarations.h"
 
-int rand_int_v_u(int v, int u=0) //This function returns random integer from u to v-1
+int rand_int_v_u(int v, int u) //This function returns random integer from u to v-1, default u is 0
 {
     return int(u+ (v-u)*(rand()/(1.0+RAND_MAX)));
 }
@@ -56,7 +56,7 @@ void set_up_game_environment() //sets undealed card deck to standard 52 deck, as
     pot_amount=0;
     no_of_raises=0;
     current_bet=0;
-    large_blind=large_blind_stored;
+    bet_amount=large_blind;
 }
 
 void select_starting_player() //randomly selects the player which starts the game and circularly reorders list so that it appears first in list 
@@ -70,11 +70,14 @@ void collect_small_and_large_blind()  //starts the pre-flop round by taking defa
 {
     //by design of game, every player in game must be capable of paying the large blind
     current_bet=small_blind;
-    cout<<"Player "<<players_in_game[0]<<" pays the small blind\n";
+    cout<<"Player "<<players_in_game[0]->player_name<<" pays the small blind\n";
+    players_in_game[0]->played_first_move_in_round=true;
     players_in_game[0]->collect_bet(small_blind);
     cout<<"The current bet now is "<<current_bet<<endl<<endl;
 
-    cout<<"Player "<<players_in_game[1]<<" pays the large blind\n";
+    current_bet=large_blind;
+    cout<<"Player "<<players_in_game[1]->player_name<<" pays the large blind\n";
+    players_in_game[1]->played_first_move_in_round=true;
     players_in_game[1]->collect_bet(large_blind);
     cout<<"The current bet now is "<<current_bet<<endl<<endl;
 }
@@ -87,7 +90,10 @@ void deal_cards_to_players() //randomly distributes two cards each to all player
 void initialise_round() //sets current bet and round bets of each player to be zero before start of betting 
 {
     vector<player*>:: iterator plr = players_in_game.begin();
-    for (int i=0; i<players_in_game.size(); i++) plr[i]->bet_in_round=0;
+    for (int i=0; i<players_in_game.size(); i++) {
+        plr[i]->bet_in_round=0;
+        plr[i]->played_first_move_in_round=false;
+    }
     current_bet=0;
     no_of_raises=0;
 }
@@ -95,28 +101,13 @@ void initialise_round() //sets current bet and round bets of each player to be z
 bool betting_round_over() //returns true if bet in round of each player in game matches current bet
 {
     bool over=true;
-    for (int i=0; i<players_in_game.size(); i++) over=over&&(players_in_game[i]->bet_in_round==current_bet);
+    for (int i=0; i<players_in_game.size(); i++) over=over&&(players_in_game[i]->bet_in_round==current_bet)&&(players_in_game[i]->played_first_move_in_round);
     return over;
 }
 
 void initiate_betting_preflop() //continues betting round until round isnt over in the preflop round
 {
-    int start_id=players_in_game[2%players_in_game.size()]->player_ID;
-    int id;
-
-    for(id=start_id; (id<no_of_players && start_id!=players_in_game.size()-2)|| id<no_of_players-1 ; id++){
-        if(all_players[id]->in_game) {
-            all_players[id]->play_move();
-            cout<<endl;
-        }
-    }
-    for(id=0; id<start_id-1; id++){
-        if(all_players[id]->in_game) {
-            all_players[id]->play_move();
-            cout<<endl;
-        }
-    }
-
+    int id=players_in_game[2%players_in_game.size()]->player_ID;
     while (!betting_round_over()){     
         if(all_players[id]->in_game) {
             all_players[id]->play_move();
@@ -129,22 +120,7 @@ void initiate_betting_preflop() //continues betting round until round isnt over 
 
 void initiate_betting() //continues betting round until round isnt over
 {
-    int start_id=players_in_game[0]->player_ID;
-    int id;
-
-    for(id=start_id; id<no_of_players ; id++){
-        if(all_players[id]->in_game) {
-            all_players[id]->play_move();
-            cout<<endl;
-        }
-    }
-    for(id=0; id<start_id; id++){
-        if(all_players[id]->in_game) {
-            all_players[id]->play_move();
-            cout<<endl;
-        }
-    }
-
+    int id=players_in_game[0]->player_ID;
     while (!betting_round_over()){     
         if(all_players[id]->in_game) {
             all_players[id]->play_move();
@@ -206,7 +182,7 @@ bool reset_for_next_game() //returns true if next game is possible, if possible,
     cout<<"You chose to continue the game\n";
 
     starting_player_index +=1;
-    all_players.clear();
+    players_in_game.clear();
     community_cards.submit();
 
     for (int i=0; i<no_of_players; i++){
@@ -214,9 +190,8 @@ bool reset_for_next_game() //returns true if next game is possible, if possible,
 
         if(all_players[i]->money_in_hand>=large_blind) all_players[i]->in_game=true;
         else all_players[i]->in_game=false;
-
-        if (all_players[(i+starting_player_index)%no_of_players]->in_game) players_in_game.push_back(all_players[(i+starting_player_index)%no_of_players]);
     }
+    for (int i=0; i<no_of_players; i++) if (all_players[(i+starting_player_index)%no_of_players]->in_game) players_in_game.push_back(all_players[(i+starting_player_index)%no_of_players]);
 
     if (players_in_game.size()<=1) {
         cout<<"It is not possible to play more games\n";
@@ -227,11 +202,11 @@ bool reset_for_next_game() //returns true if next game is possible, if possible,
     for (int i=0; i<no_of_players; i++){
         if (all_players[i]->in_game) cout<<all_players[i]->player_name<<" , ";
     }
-    cout<<endl<<"The first turn will be played by "<<players_in_game[0]<<endl<<endl;
+    cout<<endl<<"The first turn will be played by "<<players_in_game[0]->player_name<<endl<<endl;
     starting_player_index=players_in_game[0]->player_ID;
 
     pot_amount=0;
-    large_blind=large_blind_stored;
+    bet_amount=large_blind;
     initialise_round();
     return true;
 }

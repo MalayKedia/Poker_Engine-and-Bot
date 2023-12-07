@@ -14,6 +14,7 @@ bot::bot(): player()
 
 void bot::play_move() //just matches the current bet as of now
 {
+    played_first_move_in_round=true;
     if (current_bet==0) check();
     else if (!collect_bet(current_bet- bet_in_round)) fold();
     else cout<<"The current bet is still "<<current_bet<<endl;
