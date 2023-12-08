@@ -1,12 +1,12 @@
 #ifndef POKER_H
 #define POKER_H
 
-#include <vector>
-#include <utility>
 #include <cstdlib>
-#include<cmath>
-#include <ctime>
 #include <string>
+#include <vector>
+#include <algorithm>
+#include <cmath>
+#include <ctime>
 #include <assert.h>
 #include <iostream>
 using namespace std;
@@ -50,8 +50,8 @@ struct deck //contains a list of cards as a vector
 
     void print();                           //prints whole deck
 
-    int deck_five_value();                  //operates on a deck of 5 cards and returns a 5 digit no, highest digit being deck rank, next 2 being high card and next 2 being next high card 
-    int deck_seven_value();                 //operates on deck of 7 cards and returns highest possible score
+    vector<int> score_five_cards();   //operates on a deck of 5 cards and returns a vector which can be lexicographically compared to score any two decks of 5 cards 
+    vector<int> score_seven_cards();   //operates on deck of 7 cards and returns highest possible score
 };
 
 ostream & operator<<(ostream &ost, deck const &d);

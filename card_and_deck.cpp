@@ -147,12 +147,14 @@ void deck::print() //prints whole deck
     cout<<endl;
 }
 
-int deck::deck_five_value() //operates on a deck of 5 cards and returns a 5 digit no, highest digit being deck rank, next 2 being high card and next 2 being next high card 
+vector<int> deck::score_five_cards()   //operates on a deck of 5 cards and returns a vector which can be lexicographically compared to score any two decks of 5 cards 
 {
     assert(this->card_list.size()==5);
-   /*Hundreds value:
+   /*First value:
     High card- 0, Pair- 1, Two pair- 2, Three of a kind- 3, Straight- 4, Flush- 5, Full House- 6, 4 of a kind- 7, Straight Flush- 8 */
    
+    vector<int> score;
+
     int list_of_card_value[13], list_of_card_suite[4], list_of_card_value_sorted[13];
     for (int i=0; i<13; i++) list_of_card_value[i]=0;
     for (int i=0; i<4; i++) list_of_card_suite[i]=0;
@@ -167,74 +169,82 @@ int deck::deck_five_value() //operates on a deck of 5 cards and returns a 5 digi
     for (int i=0; i<4; i++) if(list_of_card_suite[i]==5) flush=true;
     for (int i=0; i<9; i++) if (list_of_card_value[i]==1 && list_of_card_value[i+1]==1 && list_of_card_value[i+2]==1 && list_of_card_value[i+3]==1 && list_of_card_value[i+4]==1) straight=true;
 
-    
-    int hundreds_place=0, tens_place=12 ,ones_place=12;
-    
     if (straight && flush) {
-        hundreds_place=8;
-        while (list_of_card_value[tens_place]!=1) tens_place--;
-        ones_place=tens_place-1;
+        score.push_back(8);
+        int highest_card=12;
+        while (list_of_card_value[highest_card]!=1) highest_card--;
+        score.push_back(highest_card);
     }
     else if (list_of_card_value_sorted[0]==4){
-        hundreds_place=7;
-        while (list_of_card_value[tens_place]!=4) tens_place--;
-        while (list_of_card_value[ones_place]!=1) ones_place--;
-
+        score.push_back(7);
+        int quadruple_card=12, single_card=12;
+        while (list_of_card_value[quadruple_card]!=4) quadruple_card--;
+        while (list_of_card_value[single_card]!=1) single_card--;
+        score.push_back(quadruple_card);
+        score.push_back(single_card);
     }
     else if (list_of_card_value_sorted[0]==3 && list_of_card_value_sorted[1]==2){
-        hundreds_place=6;
-        while (list_of_card_value[tens_place]!=3) tens_place--;
-        while (list_of_card_value[ones_place]!=2) ones_place--;
+        score.push_back(6);
+        int triple_card=12, double_card=12;
+        while (list_of_card_value[triple_card]!=3) triple_card--;
+        while (list_of_card_value[double_card]!=2) double_card--;
+        score.push_back(triple_card);
+        score.push_back(double_card);
     }
     else if (flush) {
-        hundreds_place=5;
-        while (list_of_card_value[tens_place]=0) tens_place--;
-        if (list_of_card_value[tens_place]>1) ones_place=tens_place;
-        else{
-            ones_place=tens_place-1;
-            while (list_of_card_value[ones_place]=0) ones_place--;
-        }
+        score.push_back(5);
+        for(int i=12; i>=0; i--)  if (list_of_card_value[i]==1) score.push_back(i);
+        assert(score.size()==6);
     }
     else if (straight){
-        hundreds_place=4;
-        while (list_of_card_value[tens_place]!=1) tens_place--;
-        ones_place=tens_place-1;
+        score.push_back(4);
+        int highest_card=12;
+        while (list_of_card_value[highest_card]!=1) highest_card--;
+        score.push_back(highest_card);
     }
     else if (list_of_card_value_sorted[0]==3){
-        hundreds_place=3;
-        while (list_of_card_value[tens_place]!=3) tens_place--;
-        while (list_of_card_value[ones_place]!=1) ones_place--;
+        score.push_back(3);
+        int triple_card=12;
+        while (list_of_card_value[triple_card]!=3) triple_card--;
+        score.push_back(triple_card);
+        for(int i=12; i>=0; i--)  if (list_of_card_value[i]==1) score.push_back(i);
+        assert(score.size()==4);
     }
     else if (list_of_card_value_sorted[0]==2 && list_of_card_value_sorted[1]==2){
-        hundreds_place=2;
-        while (list_of_card_value[tens_place]!=2) tens_place--;
-        ones_place=tens_place-1;
-        while (list_of_card_value[ones_place]!=2) ones_place--;
+        score.push_back(2);
+        for(int i=12; i>=0; i--)  if (list_of_card_value[i]==2) score.push_back(i);
+        for(int i=12; i>=0; i--)  if (list_of_card_value[i]==1) score.push_back(i);
+        assert(score.size()==4);
     }
     else if (list_of_card_value_sorted[0]==2){
-        hundreds_place=1;
-        while (list_of_card_value[tens_place]!=2) tens_place--;
-        while (list_of_card_value[ones_place]!=1) ones_place--;
+        score.push_back(1);
+        int double_card=12;
+        while (list_of_card_value[double_card]!=3) double_card--;
+        score.push_back(double_card);
+        for(int i=12; i>=0; i--)  if (list_of_card_value[i]==1) score.push_back(i);
+        assert(score.size()==5);
     }
     else{
-        while (list_of_card_value[tens_place]!=1) tens_place--;
-        ones_place=tens_place-1;
-        while (list_of_card_value[ones_place]!=1) ones_place--;
+        score.push_back(0);
+        for(int i=12; i>=0; i--)  if (list_of_card_value[i]==1) score.push_back(i);
+        assert(score.size()==6);
     }
-    
-    return hundreds_place*10000+tens_place*100+ones_place;
+    return score;
 }
 
-int deck::deck_seven_value() //operates on deck of 7 cards and returns highest possible score
+vector<int> deck::score_seven_cards()   //operates on deck of 7 cards and returns highest possible score
 {
     assert(this->card_list.size()==7);
-    int val=0;
-    for (int i=0; i<7; i++){
+    deck d=*this;
+    vector<int> highest_score=(d-d[6]-d[5]).score_five_cards();
+    for (int i=0; i<5; i++){
         for (int j=i+1; j<7; j++){
-            deck d=*this;
-            d.remove(j); d.remove(i);
-            val=max(val,d.deck_five_value());
+            vector<int> deck_score=(d-d[i]-d[j]).score_five_cards(); 
+
+            if (lexicographical_compare(highest_score.begin(), highest_score.end(), deck_score.begin(), deck_score.end())) highest_score=deck_score;
+//std::lexicographical_compare compares the elements of the two vectors lexicographically. The function returns true if the first range is lexicographically less than the second range and false otherwise
         }
     }
-    return val;
+    return highest_score;
 }
+
