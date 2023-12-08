@@ -1,5 +1,12 @@
 #include "declarations.h"
 
+ostream & operator<<(ostream &ost, vector<int> const &v)
+{
+    for (int i=0; i<v.size(); i++) ost<<v[i]<<"  ";
+    ost<<endl;
+    return ost;
+}
+
 int rand_int_v_u(int v, int u) //This function returns random integer from u to v-1, default u is 0
 {
     return int(u+ (v-u)*(rand()/(1.0+RAND_MAX)));
@@ -156,7 +163,7 @@ void showdown(vector<player*> &winning_players) //returns the vector having winn
     }
 }
 
-void end_game(vector<player*> winning_players) //prints the name of winning players and divides the pot among them
+void end_game(vector<player*> &winning_players) //prints the name of winning players and divides the pot among them
 {
     cout<<endl<<"The player(s) which won is (are): ";
     for (vector<player*> ::iterator plr=winning_players.begin(); plr<winning_players.end(); plr++) cout<<plr[0]->player_name<<",  ";

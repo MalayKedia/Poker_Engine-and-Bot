@@ -42,7 +42,7 @@ card deck::operator[](int i) const
     return card_list[i];
 }
 
-bool deck::present(card c) //function to tell if card c is present in the deck
+bool deck::present(card const &c) const //function to tell if card c is present in the deck
 {
     int deck_size=card_list.size();
     int index=deck_size;                        //if we find no such card, index doesnt change and stays deck_size
@@ -52,12 +52,12 @@ bool deck::present(card c) //function to tell if card c is present in the deck
     else return true;
 }
 
-void deck::add(card c) //function to add a card c to deck
+void deck::add(card const &c) //function to add a card c to deck
 {
     card_list.push_back(c);
 }
 
-void deck::add(deck d) //function to add a deck d to deck
+void deck::add(deck const &d) //function to add a deck d to deck
 {
     int n=d.card_list.size();
     for (int i=0; i<n; i++){
@@ -65,7 +65,7 @@ void deck::add(deck d) //function to add a deck d to deck
     }
 }
 
-bool deck::remove (card c) //fuction returns false if card c is not in deck, and if c is in deck, it removes it and returns true
+bool deck::remove (card const &c) //fuction returns false if card c is not in deck, and if c is in deck, it removes it and returns true
 {
     int deck_size=card_list.size();
     int index=deck_size;                        //if we find no such card, index doesnt change and stays deck_size
@@ -77,7 +77,7 @@ bool deck::remove (card c) //fuction returns false if card c is not in deck, and
     return true;
 }
 
-void deck::remove (deck d) //function to remove any cards presents in deck d from deck on which operated
+void deck::remove (deck const &d) //function to remove any cards presents in deck d from deck on which operated
 {
     for (int i=0; i<d.card_list.size(); i++){
         remove(d[i]);
@@ -108,7 +108,15 @@ void deck::submit() //empties the deck and adds all cards to undealed_cards deck
     }
 }
 
-deck deck::operator+(card const c) const
+deck operator+(card const &c1, card const &c2)
+{
+    deck sum;
+    sum.add(c1);
+    sum.add(c2);
+    return sum;
+}
+
+deck deck::operator+(card const &c) const
 {
     deck sum;
     sum.card_list=card_list;
@@ -116,7 +124,7 @@ deck deck::operator+(card const c) const
     return sum;
 }
 
-deck deck::operator+(deck const d) const
+deck deck::operator+(deck const &d) const
 {
     deck sum;
     sum.card_list=card_list;
@@ -128,7 +136,7 @@ deck deck::operator+(deck const d) const
     return sum;
 }
 
-deck deck::operator-(card const c) const
+deck deck::operator-(card const &c) const
 {
     deck sum;
     sum.card_list=card_list;
@@ -219,7 +227,7 @@ vector<int> deck::score_five_cards()   //operates on a deck of 5 cards and retur
     else if (list_of_card_value_sorted[0]==2){
         score.push_back(1);
         int double_card=12;
-        while (list_of_card_value[double_card]!=3) double_card--;
+        while (list_of_card_value[double_card]!=2) double_card--;
         score.push_back(double_card);
         for(int i=12; i>=0; i--)  if (list_of_card_value[i]==1) score.push_back(i);
         assert(score.size()==5);

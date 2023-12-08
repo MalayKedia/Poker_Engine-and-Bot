@@ -55,14 +55,14 @@ void bot::calculate_prob_round_1()
     for (int ci1=0; ci1<47; ci1++){
         for (int ci2=ci1+1; ci2<47; ci2++){
             vector<int> self_score=(community_cards+player_hand+unseen_cards[ci1]+unseen_cards[ci2]).score_seven_cards();
-            deck unseen_cards_now=unseen_cards-unseen_cards[ci1]-unseen_cards[ci2];
+            deck unseen_cards_now = unseen_cards-unseen_cards[ci1]-unseen_cards[ci2];
 
             for (int ci3=0; ci3<45; ci3++){
                 for (int ci4=ci3+1; ci4<45; ci4++){
                     vector<int> bot_score= (community_cards+unseen_cards[ci1]+unseen_cards[ci2]+unseen_cards_now[ci3]+unseen_cards_now[ci4]).score_seven_cards();
                     
                     cases_all++;
-                    if (!lexicographical_compare(bot_score.begin(), bot_score.end(), self_score.begin(), self_score.end())) cases_bot_wins++;
+                    if (!lexicographical_compare(self_score.begin(), self_score.end(), bot_score.begin(), bot_score.end())) cases_bot_wins++;
                 }
             }
         }

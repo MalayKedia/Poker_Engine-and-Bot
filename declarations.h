@@ -20,10 +20,10 @@ struct card
     int suit, value;                          //suit lies between 0 and 3, and value lies between 0 and 12
 
     card(int, int);                           //constructor for card
-
-    friend ostream & operator<<(ostream &ost, card const &c);
-    friend bool operator==(card const &c1, card const &c2);
 };
+
+ostream & operator<<(ostream &ost, card const &c);
+bool operator==(card const &c1, card const &c2);
 
 struct deck //contains a list of cards as a vector
 {
@@ -34,19 +34,19 @@ struct deck //contains a list of cards as a vector
 
     card operator[](int i) const;
 
-    bool present(card c);                    //function to tell if card c is present in the deck
-    void add(card c);                        //function to add a card c to deck
-    void add(deck d);                        //function to add a deck d to deck
-    bool remove (card c);                    //fuction returns false if card c is not in deck, and if c is in deck, it removes it and returns true
+    bool present(card const &c) const;       //function to tell if card c is present in the deck
+    void add(card const &c);                 //function to add a card c to deck
+    void add(deck const &d);                 //function to add a deck d to deck
+    bool remove (card const &c);             //fuction returns false if card c is not in deck, and if c is in deck, it removes it and returns true
     void remove (int i);                     //function to remove card at i th position in vector
-    void remove (deck d);                    //function to remove any cards presents in deck d from deck on which operated
+    void remove (deck const &d);             //function to remove any cards presents in deck d from deck on which operated
 
     void deal_random_cards(int number);      //adds 'number' of random caards to deck from the undealed_cards deck
     void submit();                           //empties the deck and adds all cards to undealed_cards deck
 
-    deck operator+(card const c) const;
-    deck operator-(card const c) const;     //card c must be in deck, or program terminates
-    deck operator+(deck const d) const;
+    deck operator+(card const &c) const;
+    deck operator-(card const &c) const;     //card c must be in deck, or program terminates
+    deck operator+(deck const &d) const;
 
     void print();                           //prints whole deck
 
@@ -54,7 +54,10 @@ struct deck //contains a list of cards as a vector
     vector<int> score_seven_cards();   //operates on deck of 7 cards and returns highest possible score
 };
 
+deck operator+(card const &c1, card const &c2);
+ostream & operator<<(ostream &ost, vector<int> const &v);
 ostream & operator<<(ostream &ost, deck const &d);
+
 
 struct player //It is assumed that there is no element uniquely in class player, it must be either in subclass user or in bot
 {
@@ -142,7 +145,7 @@ void initiate_betting_preflop();                               //continues betti
 void initiate_betting(int round_no);                                       //continues betting round until round isnt over
 
 void showdown(vector<player*> &winning_players);               //returns the vector having winning players
-void end_game(vector<player*> winning_players);                //prints the name of winning players and divides the pot among them
+void end_game(vector<player*> &winning_players);                //prints the name of winning players and divides the pot among them
 
 bool ask_if_continue();                                        //asks user if they want to play another game and returns true if user says yes
 bool reset_for_next_game();                                    //returns true if next game is possible, if possible, redeals all cards and reinitialises internal variables
