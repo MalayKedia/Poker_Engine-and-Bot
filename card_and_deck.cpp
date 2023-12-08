@@ -37,9 +37,32 @@ deck::deck(deck const &d)
     card_list=d.card_list;
 }
 
+card deck::operator[](int i) const
+{
+    return card_list[i];
+}
+
+bool deck::present(card c) //function to tell if card c is present in the deck
+{
+    int deck_size=card_list.size();
+    int index=deck_size;                        //if we find no such card, index doesnt change and stays deck_size
+    for (int i=0; i<deck_size; i++) if (card_list[i]==c) index=i; 
+    
+    if (index==deck_size) return false;         //if index didnt change it means func returns false
+    else return true;
+}
+
 void deck::add(card c) //function to add a card c to deck
 {
     card_list.push_back(c);
+}
+
+void deck::add(deck d) //function to add a deck d to deck
+{
+    int n=d.card_list.size();
+    for (int i=0; i<n; i++){
+        card_list.push_back(d[i]);
+    }
 }
 
 bool deck::remove (card c) //fuction returns false if card c is not in deck, and if c is in deck, it removes it and returns true
@@ -54,6 +77,12 @@ bool deck::remove (card c) //fuction returns false if card c is not in deck, and
     return true;
 }
 
+void deck::remove (deck d) //function to remove any cards presents in deck d from deck on which operated
+{
+    for (int i=0; i<d.card_list.size(); i++){
+        remove(d[i]);
+    }
+}
 void deck::remove (int i) //function to remove card at i th position in vector
 {
     remove(card_list[i]);
@@ -79,25 +108,43 @@ void deck::submit() //empties the deck and adds all cards to undealed_cards deck
     }
 }
 
-deck deck::operator+(deck const d) const{
+deck deck::operator+(card const c) const
+{
+    deck sum;
+    sum.card_list=card_list;
+    sum.add(c);
+    return sum;
+}
+
+deck deck::operator+(deck const d) const
+{
     deck sum;
     sum.card_list=card_list;
 
     int size_d=d.card_list.size();
     for (int i=0; i<size_d; i++){
-        sum.add(d.card_list[i]);
+        sum.add(d[i]);
     }
     return sum;
 }
 
+deck deck::operator-(card const c) const
+{
+    deck sum;
+    sum.card_list=card_list;
+    assert(sum.remove(c));
+    return sum;
+}
+
 ostream & operator<<(ostream &ost, deck const &d){
-    for (int i=0; i<d.card_list.size(); i++) ost<<d.card_list[i];
+    for (int i=0; i<d.card_list.size(); i++) ost<<d[i];
     return ost;
 }
 
 void deck::print() //prints whole deck
 {
     for (int i=0; i<card_list.size(); i++) cout<<card_list[i]; 
+    cout<<endl;
 }
 
 int deck::deck_five_value() //operates on a deck of 5 cards and returns a 5 digit no, highest digit being deck rank, next 2 being high card and next 2 being next high card 

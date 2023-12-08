@@ -32,7 +32,8 @@ void reorder_players_in_game(int starting_player_index) //circularly reorders th
 
 void set_up_game_environment() //sets undealed card deck to standard 52 deck, asks for no. of players, initialises game variables
 {
-    int seed=time(NULL); srand(seed);
+    int seed=time(NULL);
+    srand(seed);
     cout<<"Starting the game\nThe seed value is: "<<seed<<endl<<endl;
 
     cout<<"You are playing limt hold'em\n";
@@ -85,6 +86,7 @@ void collect_small_and_large_blind()  //starts the pre-flop round by taking defa
 void deal_cards_to_players() //randomly distributes two cards each to all players in list players_in_game
 {
     for (int i=0; i<players_in_game.size(); i++) players_in_game[i]->player_hand.deal_random_cards(2);
+    cout<<"Dealing cards to all players\n\n";
 }
 
 void initialise_round() //sets current bet and round bets of each player to be zero before start of betting 
@@ -110,7 +112,8 @@ void initiate_betting_preflop() //continues betting round until round isnt over 
     int id=players_in_game[2%players_in_game.size()]->player_ID;
     while (!betting_round_over()){     
         if(all_players[id]->in_game) {
-            all_players[id]->play_move();
+            cout<<"Turn moves to player "<<all_players[id]->player_name<<"\n";
+            all_players[id]->play_move(0);
             cout<<endl;
         }
         if (id!=no_of_players-1) id++;
@@ -118,12 +121,13 @@ void initiate_betting_preflop() //continues betting round until round isnt over 
     }
 }
 
-void initiate_betting() //continues betting round until round isnt over
+void initiate_betting(int round_no) //continues betting round until round isnt over
 {
     int id=players_in_game[0]->player_ID;
     while (!betting_round_over()){     
         if(all_players[id]->in_game) {
-            all_players[id]->play_move();
+            cout<<"Turn moves to player "<<all_players[id]->player_name<<"\n";
+            all_players[id]->play_move(round_no);
             cout<<endl;
         }
         if (id!=no_of_players-1) id++;
@@ -191,7 +195,11 @@ bool reset_for_next_game() //returns true if next game is possible, if possible,
         if(all_players[i]->money_in_hand>=large_blind) all_players[i]->in_game=true;
         else all_players[i]->in_game=false;
     }
-    for (int i=0; i<no_of_players; i++) if (all_players[(i+starting_player_index)%no_of_players]->in_game) players_in_game.push_back(all_players[(i+starting_player_index)%no_of_players]);
+    for (int i=0; i<no_of_players; i++){ 
+        if (all_players[(i+starting_player_index)%no_of_players]->in_game) {
+            players_in_game.push_back(all_players[(i+starting_player_index)%no_of_players]);            
+        }
+    }
 
     if (players_in_game.size()<=1) {
         cout<<"It is not possible to play more games\n";

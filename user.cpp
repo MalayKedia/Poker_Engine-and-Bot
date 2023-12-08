@@ -14,7 +14,7 @@ user::user(): player()
 }
 
 
-void user::play_move()
+void user::play_move(int round_no)
 {
     played_first_move_in_round=true;
     char move;
@@ -37,13 +37,13 @@ void user::play_move()
         }
         case 'r':{
             cout<<"You have raised by "<<bet_amount<<endl;
-            if (!(this->raise(bet_amount))) this->play_move();
+            if (!(this->raise(bet_amount))) this->play_move(round_no);
             break;
         }
 
         case 'o':{
             cout<<"You have opened by "<<bet_amount<<endl;
-            if (!(this->raise(bet_amount))) this->play_move();
+            if (!(this->raise(bet_amount))) this->play_move(round_no);
             break;
         }
 
@@ -61,7 +61,7 @@ void user::play_move()
 
         default:{
             cout<<"Invalid Input, Try Again\n";
-            this->play_move();
+            this->play_move(round_no);
             break;
         }
     }

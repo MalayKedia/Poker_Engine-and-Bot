@@ -4,6 +4,7 @@
 #include <vector>
 #include <utility>
 #include <cstdlib>
+#include<cmath>
 #include <ctime>
 #include <string>
 #include <assert.h>
@@ -31,20 +32,29 @@ struct deck //contains a list of cards as a vector
     deck();                                  //default constructor
     deck(deck const &d);                     //copy constructor
 
+    card operator[](int i) const;
+
+    bool present(card c);                    //function to tell if card c is present in the deck
     void add(card c);                        //function to add a card c to deck
+    void add(deck d);                        //function to add a deck d to deck
     bool remove (card c);                    //fuction returns false if card c is not in deck, and if c is in deck, it removes it and returns true
     void remove (int i);                     //function to remove card at i th position in vector
+    void remove (deck d);                    //function to remove any cards presents in deck d from deck on which operated
 
     void deal_random_cards(int number);      //adds 'number' of random caards to deck from the undealed_cards deck
     void submit();                           //empties the deck and adds all cards to undealed_cards deck
 
+    deck operator+(card const c) const;
+    deck operator-(card const c) const;     //card c must be in deck, or program terminates
     deck operator+(deck const d) const;
-    friend ostream & operator<<(ostream &ost, deck const &d);
+
     void print();                           //prints whole deck
 
     int deck_five_value();                  //operates on a deck of 5 cards and returns a 5 digit no, highest digit being deck rank, next 2 being high card and next 2 being next high card 
     int deck_seven_value();                 //operates on deck of 7 cards and returns highest possible score
 };
+
+ostream & operator<<(ostream &ost, deck const &d);
 
 struct player //It is assumed that there is no element uniquely in class player, it must be either in subclass user or in bot
 {
@@ -63,7 +73,7 @@ struct player //It is assumed that there is no element uniquely in class player,
 
     bool collect_bet(int amount);      //returns false if player doesnt have enough balance to raise by amount, else returns true, deducts the amount from players balance and adds it to pot
 
-    virtual void play_move() {};
+    virtual void play_move(int round_no) {};
     
     void check();                       //allowed only if current bet is zero
     bool raise(int raise_amount);       //returns false if player doesnt have enough balance to raise by amount, else returns true, and collects the raise and any leftover sum
@@ -93,18 +103,24 @@ extern deck undealed_cards, community_cards;
 extern int pot_amount, current_bet, no_of_raises, no_of_players, starting_player_index;
 extern vector<player*> players_in_game, all_players;
 
-
 struct bot: public player       //subclass of player, autoplayed by computer
 {
     bot();    
-    void play_move() override;
+    void play_move(int round_no) override;
+    deck unseen_cards;
+    double prob_not_losing_against_player;
+
+    void calculate_prob_round_1();
+    void play_move_round_1();
+    void play_move_round_2();
+    void play_move_round_3();
 
 };
 
 struct user: public player      //subclass of player, played by user
 {
     user();
-    void play_move() override;
+    void play_move(int round_no) override;
         
 };
 
@@ -123,14 +139,12 @@ void deal_cards_to_players();                                  //randomly distri
 void initialise_round();                                       //sets current bet and round bets of each player to be zero before start of betting 
 bool betting_round_over();                                     //returns true if bet in round of each player in game matches current bet
 void initiate_betting_preflop();                               //continues betting round until round isnt over in preflop round
-void initiate_betting();                                       //continues betting round until round isnt over
+void initiate_betting(int round_no);                                       //continues betting round until round isnt over
 
 void showdown(vector<player*> &winning_players);               //returns the vector having winning players
 void end_game(vector<player*> winning_players);                //prints the name of winning players and divides the pot among them
 
 bool ask_if_continue();                                        //asks user if they want to play another game and returns true if user says yes
 bool reset_for_next_game();                                    //returns true if next game is possible, if possible, redeals all cards and reinitialises internal variables
-
-
 
 #endif

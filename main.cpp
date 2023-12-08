@@ -26,7 +26,7 @@ int main(){
             community_cards.print();    
             
             initialise_round();
-            initiate_betting();
+            initiate_betting(1);
 
             if (players_in_game.size()>1){
                 bet_amount*=2;
@@ -35,7 +35,7 @@ int main(){
                 community_cards.print();
         
                 initialise_round();
-                initiate_betting();
+                initiate_betting(2);
 
                 if (players_in_game.size()>1){
                     cout<<"Round four of betting begins: \n\nDealing the river:\n";
@@ -43,7 +43,7 @@ int main(){
                     community_cards.print(); 
         
                     initialise_round();
-                    initiate_betting();
+                    initiate_betting(3);
                 }
             }
         }
