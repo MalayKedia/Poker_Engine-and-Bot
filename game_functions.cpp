@@ -39,6 +39,7 @@ void reorder_players_in_game(int starting_player_index) //circularly reorders th
 
 void set_up_game_environment() //sets undealed card deck to standard 52 deck, asks for no. of players, initialises game variables
 {
+    //int seed=1702061355;
     int seed=time(NULL);
     srand(seed);
     cout<<"Starting the game\nThe seed value is: "<<seed<<endl<<endl;
@@ -145,6 +146,8 @@ void initiate_betting(int round_no) //continues betting round until round isnt o
 void showdown(vector<player*> &winning_players) //returns the vector having winning players
 {
     cout<<"Starting the showdown: \n\n";
+    cout<<"The community cards were: \n";
+    community_cards.print();
 
     vector<vector<int>> scores;
     for (vector<player*> ::iterator plr=players_in_game.begin(); plr<players_in_game.end(); plr++){

@@ -114,6 +114,8 @@ struct bot: public player       //subclass of player, autoplayed by computer
     double prob_not_losing_against_player;
 
     void calculate_prob_round_1();
+    void calculate_prob_round_2();
+    void calculate_prob_round_3();
     void play_move_round_1();
     void play_move_round_2();
     void play_move_round_3();
