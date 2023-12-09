@@ -36,33 +36,38 @@ void user::play_move(int round_no)
             break;
         }
         case 'r':{
-            cout<<"You have raised by "<<bet_amount<<endl;
-            if (!(this->raise(bet_amount))) this->play_move(round_no);
+            if (money_in_hand>=current_bet+bet_amount-bet_in_round) raise();
+            else {
+                cout<<"Cannot raise due to insufficient balance, play some other move\n";
+                play_move(round_no);
+            }
             break;
         }
 
         case 'o':{
-            cout<<"You have opened by "<<bet_amount<<endl;
-            if (!(this->raise(bet_amount))) this->play_move(round_no);
+            if (money_in_hand>=bet_amount) open();
+            else {
+                cout<<"Cannot open due to insufficient balance, play some other move\n";
+                play_move(round_no);
+            }
             break;
         }
 
         case 'k':{
-            cout<<"You chose to call\n";
-            if (collect_bet(current_bet- bet_in_round)) {
-                cout<<"The current bet is still "<<current_bet<<endl;
-                break;
+            if (money_in_hand>=current_bet-bet_in_round) call();
+            else {
+                cout<<"Cannot call due to insufficient balance, play some other move\n";
+                play_move(round_no);
             }
+            break;
         }
         case 'f':{
-            this->fold();
+            fold();
             break;
         }
 
         default:{
-            cout<<"Invalid Input, Try Again\n";
-            this->play_move(round_no);
-            break;
+            assert(false);
         }
     }
 }

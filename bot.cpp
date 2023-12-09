@@ -4,6 +4,22 @@ bot::bot(): player()
 {   
     player_name="Bot "+to_string(player_ID);
     unseen_cards=undealed_cards;
+    
+    while (true){
+        cout<<"Nature of "<<player_name<<" (confident 'c' / underconfident 'u' / overconfident 'o'/ random 'r'): ";
+        cin>>bot_nature;
+        if (bot_nature=='c' || bot_nature=='u' || bot_nature=='o' || bot_nature=='r') break;
+        else cout<<"Invalid, not a valid bot type\n";
+    }
+    player_name=string("Bot (") + bot_nature + ") - " + to_string(player_ID);
+    
+    if(bot_nature=='r'){
+        int nature=rand_int_v_u(3);
+        if (nature==0) bot_nature='c';
+        else if (nature==1) bot_nature='o';
+        else bot_nature='u';
+    }
+
     while (true){
         cout<<"Money in account of "<<player_name<<" : ";
         cin>>money_in_hand;
@@ -19,15 +35,16 @@ void bot::play_move(int round_no) //just matches the current bet as of now
     if (round_no==0)
     {
         played_first_move_in_round=true;
-        if (!collect_bet(current_bet- bet_in_round)) fold();
-        else cout<<"The current bet is still "<<current_bet<<endl;
+        if (money_in_hand<current_bet-bet_in_round) fold();
+        else if (current_bet==0) check();
+        else call();
     }
     else if (round_no==1) 
     {
         unseen_cards.remove(player_hand+community_cards);
         if (!played_first_move_in_round) calculate_prob_round_1();
-        played_first_move_in_round=true;
         play_move_round_1();
+        played_first_move_in_round=true;
         unseen_cards.add(player_hand+community_cards);
     }
     else if (round_no==2) 
@@ -49,9 +66,9 @@ void bot::play_move(int round_no) //just matches the current bet as of now
 }
 
 /*
-    if (current_bet==0) check();
-    else if (!collect_bet(current_bet- bet_in_round)) fold();
-    else cout<<"The current bet is still "<<current_bet<<endl;
+    if (money_in_hand<current_bet-bet_in_round) fold();
+    else if (current_bet==0) check();
+    else call();
 */
 
 void bot::calculate_prob_round_1()
@@ -75,7 +92,7 @@ void bot::calculate_prob_round_1()
         }
     }
 
-    cout<<"Out of "<<cases_all<<" cases, bot wins in "<<cases_bot_wins<<endl;
+    //cout<<"Out of "<<cases_all<<" cases, bot wins in "<<cases_bot_wins<<endl;
     prob_not_losing_against_player=double(cases_bot_wins)/cases_all;
 }
 
@@ -98,7 +115,7 @@ void bot::calculate_prob_round_2()
         }
     }
 
-    cout<<"Out of "<<cases_all<<" cases, bot wins in "<<cases_bot_wins<<endl;
+    //cout<<"Out of "<<cases_all<<" cases, bot wins in "<<cases_bot_wins<<endl;
     prob_not_losing_against_player=double(cases_bot_wins)/cases_all;
 }
 
@@ -118,22 +135,64 @@ void bot::calculate_prob_round_3()
         }
     }
     
-    cout<<"Out of "<<cases_all<<" cases, bot wins in "<<cases_bot_wins<<endl;
+    //cout<<"Out of "<<cases_all<<" cases, bot wins in "<<cases_bot_wins<<endl;
     prob_not_losing_against_player=double(cases_bot_wins)/cases_all;
 }
 
 void bot::play_move_round_1()
 {
-    double prob_not_losing_all_players=pow(prob_not_losing_against_player, players_in_game.size()-1);
-
     cout<<"Bots hand is\n"<<player_hand;
     cout<<"The prob the bot wins or ties against 1 player is :"<<prob_not_losing_against_player<<endl;
-    cout<<"The prob the bot wins or ties against all player is :"<<prob_not_losing_all_players<<endl;
 
-    if (current_bet==0) check();
-    else if (!collect_bet(current_bet- bet_in_round)) fold();
-    else cout<<"The current bet is still "<<current_bet<<endl;
+    bool bot_can_call=(money_in_hand>=current_bet-bet_in_round), bot_can_raise=(money_in_hand>=current_bet+bet_amount-bet_in_round)&&(no_of_raises<max_no_of_raises);
 
+    if (!bot_can_call) {
+        fold();
+        return;
+    }
+    if (money_in_hand<bet_amount){
+        check();
+        return;
+    }
+
+    if (!played_first_move_in_round){
+        if (current_bet==0){
+            switch (bot_nature){
+                case 'c': {
+                    if (prob_not_losing_against_player>0.40) open();
+                    else check();
+                    break;
+                }
+                case 'o': {
+                    if (prob_not_losing_against_player>0.10) open();
+                    else check();
+                    break;
+                }
+                case 'u': {
+                    if (prob_not_losing_against_player>0.70) open();
+                    else check();
+                    break;
+                }
+                default: assert(false);
+            }
+        }
+        else{
+            switch (bot_nature){
+                case 'c': play_move_given_thresholds(0.05, 0.15, 0.40, 0.70, prob_not_losing_against_player, bot_can_raise); break;
+                case 'o': play_move_given_thresholds(0.01, 0.05, 0.25, 0.50, prob_not_losing_against_player, bot_can_raise); break;
+                case 'u': play_move_given_thresholds(0.10, 0.30, 0.65, 0.85, prob_not_losing_against_player, bot_can_raise); break;
+                default: assert(false);
+            }
+        }
+    }
+    else{
+        switch (bot_nature){
+            case 'c': play_move_given_thresholds(0.0, 0.30, 0.60, 0.80, prob_not_losing_against_player, bot_can_raise); break;
+            case 'o': play_move_given_thresholds(0.00, 0.00, 0.40, 0.70, prob_not_losing_against_player, bot_can_raise); break;
+            case 'u': play_move_given_thresholds(0.20, 0.50, 0.80, 0.95, prob_not_losing_against_player, bot_can_raise); break;
+            default: assert(false);
+        }
+    }
 }
 
 void bot::play_move_round_2()
@@ -144,9 +203,9 @@ void bot::play_move_round_2()
     cout<<"The prob the bot wins or ties against 1 player is :"<<prob_not_losing_against_player<<endl;
     cout<<"The prob the bot wins or ties against all player is :"<<prob_not_losing_all_players<<endl;
 
-    if (current_bet==0) check();
-    else if (!collect_bet(current_bet- bet_in_round)) fold();
-    else cout<<"The current bet is still "<<current_bet<<endl;
+    if (money_in_hand<current_bet-bet_in_round) fold();
+    else if (current_bet==0) check();
+    else call();
 }
 
 void bot::play_move_round_3()
@@ -157,7 +216,27 @@ void bot::play_move_round_3()
     cout<<"The prob the bot wins or ties against 1 player is :"<<prob_not_losing_against_player<<endl;
     cout<<"The prob the bot wins or ties against all player is :"<<prob_not_losing_all_players<<endl;
 
-    if (current_bet==0) check();
-    else if (!collect_bet(current_bet- bet_in_round)) fold();
-    else cout<<"The current bet is still "<<current_bet<<endl;
+    if (money_in_hand<current_bet-bet_in_round) fold();
+    else if (current_bet==0) check();
+    else call();
+}
+
+void bot::play_move_given_thresholds(double p1, double p2, double p3, double p4, double prob, bool bot_can_raise)
+{
+    if (prob<p1) fold();
+    else if (prob<p2){
+        double rand=rand_double_v_u(p2,p1);
+        if(rand>prob) fold();
+        else call();
+    }   
+    else if (prob<p3) call();
+    else if (prob<p4){
+        double rand=rand_double_v_u(p3,p2);
+        if(bot_can_raise && rand<=prob) raise();
+        else call();
+    }
+    else{
+        if(bot_can_raise) raise();
+        else call();
+    }
 }

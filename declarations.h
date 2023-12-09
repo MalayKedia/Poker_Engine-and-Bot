@@ -74,12 +74,14 @@ struct player //It is assumed that there is no element uniquely in class player,
     player();                          //sets in game variables to default values and adds player to player lists 
     ~player();                         
 
-    bool collect_bet(int amount);      //returns false if player doesnt have enough balance to raise by amount, else returns true, deducts the amount from players balance and adds it to pot
+    void collect_bet(int amount);      //deducts the amount from players balance and adds it to pot
 
     virtual void play_move(int round_no) {};
     
     void check();                       //allowed only if current bet is zero
-    bool raise(int raise_amount);       //returns false if player doesnt have enough balance to raise by amount, else returns true, and collects the raise and any leftover sum
+    void open();
+    void call();
+    void raise();                       //collects the raise and any leftover sum
     void fold();                        //changes in_game to false and removes player from list players_in_game
 };
 int player::no_of_players_static=0;     
@@ -111,6 +113,7 @@ struct bot: public player       //subclass of player, autoplayed by computer
     bot();    
     void play_move(int round_no) override;
     deck unseen_cards;
+    char bot_nature;
     double prob_not_losing_against_player;
 
     void calculate_prob_round_1();
@@ -119,7 +122,7 @@ struct bot: public player       //subclass of player, autoplayed by computer
     void play_move_round_1();
     void play_move_round_2();
     void play_move_round_3();
-
+    void play_move_given_thresholds(double p1, double p2, double p3, double p4, double prob, bool bot_can_raise);
 };
 
 struct user: public player      //subclass of player, played by user
@@ -132,6 +135,7 @@ struct user: public player      //subclass of player, played by user
 //Declarations of all functions defined:
 
 int rand_int_v_u(int v, int u=0);                              //This function returns random integer from u to v-1
+double rand_double_v_u(int v, int u);                           //This function returns a double from u to v both inclusive
 void bubbleSort_descending(const int inputArr[], int sortedArr[], int n);
 void reorder_players_in_game(int starting_player_index);       //circularly reorders the list players_in_game st it starts from player at index given
 

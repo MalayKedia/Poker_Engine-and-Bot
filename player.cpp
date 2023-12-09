@@ -13,19 +13,14 @@ player::~player()
   player_hand.submit();
 }
 
-bool player::collect_bet(int amount) //returns false if player doesnt have enough balance to raise by amount, else returns true, deducts the amount from players balance and adds it to pot
+void player::collect_bet(int amount) //deducts the amount from players balance and adds it to pot
 {   
-    if (money_in_hand<amount){
-        cout<<"Error, not enough balance in acc of "<<player_name<<" to pay "<<amount<<endl;
-        return false;
-    }
     money_in_hand-=amount;
+    assert(money_in_hand>=0);
     bet_in_round+=amount;
     pot_amount+=amount;
     cout<<"Collecting bet of "<<amount<<" from "<<player_name<<", money left in account of "<<player_name<<" is "<<money_in_hand<<endl;
     cout<<"The pot now is "<<pot_amount<<endl;
-
-    return true;
 }
 
 void player::check() //allowed only if current bet is zero
@@ -33,16 +28,35 @@ void player::check() //allowed only if current bet is zero
     cout<<player_name<<" chose to check, passing turn to next player\n";
 }
 
-bool player::raise(int raise_amount) //returns false if player doesnt have enough balance to raise by amount, else returns true, and collects the raise and any leftover sum
+void player::open()
 {
-    bool raise_possible= (this->collect_bet(current_bet+raise_amount- bet_in_round));
-    if (raise_possible) {
-      current_bet+=raise_amount;
-      no_of_raises++;
-      cout<<"Successfully raised by "<<raise_amount<<", the current bet now is "<<current_bet<<endl;
-    }
-    else cout<<"Cannot raise by "<<raise_amount<<" ,try again\n";
-    return raise_possible;
+    assert(money_in_hand>=bet_amount);
+
+    cout<<player_name<<" has chosen to open\n";
+    current_bet=bet_amount;
+    collect_bet(bet_amount);
+    cout<<"The current bet now is "<<current_bet<<endl;
+}
+
+void player::call()
+{
+    assert(money_in_hand>=current_bet-bet_in_round);
+
+    cout<<player_name<<" has chosen to call\n";
+    collect_bet(current_bet-bet_in_round);
+    cout<<"The current bet is still "<<current_bet<<endl;
+}
+
+void player::raise() //collects the raise and any leftover sum
+{  
+    assert(no_of_raises<max_no_of_raises);
+    assert(money_in_hand>=current_bet+bet_amount-bet_in_round);
+
+    cout<<player_name<<" has chosen to raise\n";
+    current_bet+=bet_amount;
+    no_of_raises++;
+    collect_bet(current_bet-bet_in_round);
+    cout<<"The current bet now is "<<current_bet<<endl;
 }
 
 void player::fold() //changes in_game to false and removes player from list players_in_game

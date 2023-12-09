@@ -12,6 +12,10 @@ int rand_int_v_u(int v, int u) //This function returns random integer from u to 
     return int(u+ (v-u)*(rand()/(1.0+RAND_MAX)));
 }
 
+double rand_double_v_u(int v, int u) //This function returns a double from u to v both inclusive
+{
+    return (u+ (v-u)*(double(rand())/RAND_MAX));
+}
 void bubbleSort_descending(const int inputArr[], int sortedArr[], int n) 
 {
     for (int i = 0; i < n; ++i) sortedArr[i] = inputArr[i];
