@@ -14,10 +14,10 @@ bot::bot(): player()
     player_name=string("Bot(") + bot_nature + ") - " + to_string(player_ID);
     
     if(bot_nature=='r'){
-        int nature=rand_int_v_u(3);
-        if (nature==0) bot_nature='c';
+        int nature=rand_int_v_u(5);
+        if (nature==0) bot_nature='u';
         else if (nature==1) bot_nature='o';
-        else bot_nature='u';
+        else bot_nature='c';
     }
 
     while (true){
@@ -32,34 +32,31 @@ bot::bot(): player()
 void bot::play_move(int round_no) //just matches the current bet as of now
 {
     assert(unseen_cards.card_list.size()==52);
+    if (!played_first_move_in_round) calculate_probability(round_no);
+
     if (round_no==0)
     {
+        sleep_for(10s);
         play_move_preflop();
         played_first_move_in_round=true;
     }
     else if (round_no==1) 
     {
-        unseen_cards.remove(player_hand+community_cards);
-        if (!played_first_move_in_round) calculate_prob_round_1();
+        if (played_first_move_in_round) sleep_for(10s);
         play_move_round_1();
-        played_first_move_in_round=true;
-        unseen_cards.add(player_hand+community_cards);
+        played_first_move_in_round=true;   
     }
     else if (round_no==2) 
     {
-        unseen_cards.remove(player_hand+community_cards);
-        if (!played_first_move_in_round) calculate_prob_round_2();
-        played_first_move_in_round=true;
+        sleep_for(10s);
         play_move_round_2();
-        unseen_cards.add(player_hand+community_cards);
+        played_first_move_in_round=true;
     }
     else if (round_no==3) 
     {
-        unseen_cards.remove(player_hand+community_cards);
-        if (!played_first_move_in_round) calculate_prob_round_3();
-        played_first_move_in_round=true;
+        sleep_for(10s);
         play_move_round_3();
-        unseen_cards.add(player_hand+community_cards);
+        played_first_move_in_round=true;
     }
 }
 
@@ -174,6 +171,19 @@ int bot::strength_preflop()
     }
 }
 
+void bot::calculate_probability(int round_no)
+{
+    unseen_cards.remove(player_hand+community_cards);
+    switch (round_no){
+        case 0: break;
+        case 1: calculate_prob_round_1(); break;
+        case 2: calculate_prob_round_2(); break;
+        case 3: calculate_prob_round_3(); break;
+        default: assert(false);
+    }
+    unseen_cards.add(player_hand+community_cards);
+}
+
 void bot::calculate_prob_round_1()
 {
     int cases_bot_wins=0, cases_all=0;
@@ -266,6 +276,7 @@ void bot::play_move_preflop()
                 if (current_bet<=3*bet_amount && bot_can_raise) raise();
                 else call();
             }
+            break;
         }
         case 'u':{
             if (strength==4){
@@ -280,6 +291,7 @@ void bot::play_move_preflop()
                 if (current_bet<=2*bet_amount && bot_can_raise) raise();
                 else call();
             }
+            break;
         }
         case 'o':{
             if (strength==3 || strength==4) {call();}
@@ -291,16 +303,14 @@ void bot::play_move_preflop()
                 if (current_bet<=4*bet_amount && bot_can_raise) raise();
                 else call();
             }
+            break;
         }
     }
 }
 
-
-
 void bot::play_move_round_1()
 {
-    cout<<"Bots hand is\n"<<player_hand;
-    cout<<"The prob the bot wins or ties against 1 player is :"<<prob_not_losing_against_player<<endl;
+    //cout<<"Bots hand is\n"<<player_hand;
 
     bool bot_can_call=(money_in_hand>=current_bet-bet_in_round), bot_can_raise=(money_in_hand>=current_bet+bet_amount-bet_in_round)&&(no_of_raises<max_no_of_raises);
 
@@ -309,41 +319,55 @@ void bot::play_move_round_1()
         return;
     }
 
-    if (!played_first_move_in_round){
-        if (current_bet==0){
-            switch (bot_nature){
-                case 'c': {
-                    if (money_in_hand<bet_amount || prob_not_losing_against_player<=0.40) check();
-                    else open();
-                    break;
-                }
-                case 'o': {
-                    if (money_in_hand<bet_amount || prob_not_losing_against_player<=0.10) check();
-                    else open();
-                    break;
-                }
-                case 'u': {
-                    if (money_in_hand<bet_amount || prob_not_losing_against_player<=0.70) check();
-                    else open();
-                    break;
-                }
-                default: assert(false);
+    if (current_bet==0){
+        switch (bot_nature){
+            case 'c': {
+                if (money_in_hand<bet_amount || prob_not_losing_against_player<=0.50) check();
+                else open();
+                break;
             }
-        }
-        else{
-            switch (bot_nature){
-                case 'c': play_move_given_thresholds(0.10, 0.25, 0.60, 0.75, prob_not_losing_against_player, bot_can_raise); break;
-                case 'o': play_move_given_thresholds(0.05, 0.15, 0.40, 0.60, prob_not_losing_against_player, bot_can_raise); break;
-                case 'u': play_move_given_thresholds(0.20, 0.45, 0.75, 0.90, prob_not_losing_against_player, bot_can_raise); break;
-                default: assert(false);
+            case 'o': {
+                if (money_in_hand<bet_amount || prob_not_losing_against_player<=0.30) check();
+                else open();
+                break;
             }
+            case 'u': {
+                if (money_in_hand<bet_amount || prob_not_losing_against_player<=0.70) check();
+                else open();
+                break;
+            }
+            default: assert(false);
         }
     }
-    else{
+    else if(no_of_raises==0){
         switch (bot_nature){
-            case 'c': play_move_given_thresholds(0.15, 0.35, 0.80, 0.90, prob_not_losing_against_player, bot_can_raise); break;
-            case 'o': play_move_given_thresholds(0.00, 0.00, 0.60, 0.80, prob_not_losing_against_player, bot_can_raise); break;
-            case 'u': play_move_given_thresholds(0.40, 0.60, 0.90, 1.00, prob_not_losing_against_player, bot_can_raise); break;
+            case 'c': play_move_given_thresholds(0.15, 0.30, 0.60, 0.75, prob_not_losing_against_player, bot_can_raise); break;
+            case 'o': play_move_given_thresholds(0.05, 0.15, 0.40, 0.60, prob_not_losing_against_player, bot_can_raise); break;
+            case 'u': play_move_given_thresholds(0.25, 0.45, 0.75, 0.90, prob_not_losing_against_player, bot_can_raise); break;
+            default: assert(false);
+        }
+    }
+    else if (no_of_raises==1){
+        switch (bot_nature){
+            case 'c': play_move_given_thresholds(0.20, 0.35, 0.80, 0.90, prob_not_losing_against_player, bot_can_raise); break;
+            case 'o': play_move_given_thresholds(0.10, 0.25, 0.60, 0.80, prob_not_losing_against_player, bot_can_raise); break;
+            case 'u': play_move_given_thresholds(0.30, 0.50, 0.85, 1.00, prob_not_losing_against_player, bot_can_raise); break;
+            default: assert(false);
+        }
+    }
+    else if (no_of_raises==2){
+        switch (bot_nature){
+            case 'c': play_move_given_thresholds(0.30, 0.50, 0.85, 0.95, prob_not_losing_against_player, bot_can_raise); break;
+            case 'o': play_move_given_thresholds(0.20, 0.40, 0.75, 0.90, prob_not_losing_against_player, bot_can_raise); break;
+            case 'u': play_move_given_thresholds(0.40, 0.65, 0.90, 1.00, prob_not_losing_against_player, bot_can_raise); break;
+            default: assert(false);
+        }
+    }
+    else {
+        switch (bot_nature){
+            case 'c': play_move_given_thresholds(0.30, 0.60, 1.00, 1.00, prob_not_losing_against_player, bot_can_raise); break;
+            case 'o': play_move_given_thresholds(0.20, 0.40, 1.00, 1.00, prob_not_losing_against_player, bot_can_raise); break;
+            case 'u': play_move_given_thresholds(0.50, 0.75, 1.00, 1.00, prob_not_losing_against_player, bot_can_raise); break;
             default: assert(false);
         }
     }
@@ -351,28 +375,139 @@ void bot::play_move_round_1()
 
 void bot::play_move_round_2()
 {
-    double prob_not_losing_all_players=pow(prob_not_losing_against_player, players_in_game.size()-1);
+    double prob_adjusted_for_no_of_players=pow(prob_not_losing_against_player, sqrt(double(players_in_game.size()-1)));
 
-    cout<<"Bots hand is\n"<<player_hand;
-    cout<<"The prob the bot wins or ties against 1 player is :"<<prob_not_losing_against_player<<endl;
-    cout<<"The prob the bot wins or ties against all player is :"<<prob_not_losing_all_players<<endl;
+    //cout<<"Bots hand is\n"<<player_hand;
+   
+    bool bot_can_call=(money_in_hand>=current_bet-bet_in_round), bot_can_raise=(money_in_hand>=current_bet+bet_amount-bet_in_round)&&(no_of_raises<max_no_of_raises);
 
-    if (money_in_hand<current_bet-bet_in_round) fold();
-    else if (current_bet==0) check();
-    else call();
+    if (!bot_can_call) {
+        fold();
+        return;
+    }
+
+    if (current_bet==0){
+        switch (bot_nature){
+            case 'c': {
+                if (money_in_hand<bet_amount || prob_adjusted_for_no_of_players<=0.50) check();
+                else open();
+                break;
+            }
+            case 'o': {
+                if (money_in_hand<bet_amount || prob_adjusted_for_no_of_players<=0.30) check();
+                else open();
+                break;
+            }
+            case 'u': {
+                if (money_in_hand<bet_amount || prob_adjusted_for_no_of_players<=0.70) check();
+                else open();
+                break;
+            }
+            default: assert(false);
+        }
+    }
+    else if(no_of_raises==0){
+        switch (bot_nature){
+            case 'c': play_move_given_thresholds(0.15, 0.30, 0.60, 0.75, prob_adjusted_for_no_of_players, bot_can_raise); break;
+            case 'o': play_move_given_thresholds(0.05, 0.15, 0.40, 0.60, prob_adjusted_for_no_of_players, bot_can_raise); break;
+            case 'u': play_move_given_thresholds(0.25, 0.45, 0.75, 0.90, prob_adjusted_for_no_of_players, bot_can_raise); break;
+            default: assert(false);
+        }
+    }
+    else if (no_of_raises==1){
+        switch (bot_nature){
+            case 'c': play_move_given_thresholds(0.20, 0.35, 0.80, 0.90, prob_adjusted_for_no_of_players, bot_can_raise); break;
+            case 'o': play_move_given_thresholds(0.10, 0.25, 0.60, 0.80, prob_adjusted_for_no_of_players, bot_can_raise); break;
+            case 'u': play_move_given_thresholds(0.30, 0.50, 0.85, 1.00, prob_adjusted_for_no_of_players, bot_can_raise); break;
+            default: assert(false);
+        }
+    }
+    else if (no_of_raises==2){
+        switch (bot_nature){
+            case 'c': play_move_given_thresholds(0.30, 0.50, 0.85, 0.95, prob_adjusted_for_no_of_players, bot_can_raise); break;
+            case 'o': play_move_given_thresholds(0.20, 0.40, 0.75, 0.90, prob_adjusted_for_no_of_players, bot_can_raise); break;
+            case 'u': play_move_given_thresholds(0.40, 0.65, 0.90, 1.00, prob_adjusted_for_no_of_players, bot_can_raise); break;
+            default: assert(false);
+        }
+    }
+    else {
+        switch (bot_nature){
+            case 'c': play_move_given_thresholds(0.30, 0.60, 1.00, 1.00, prob_adjusted_for_no_of_players, bot_can_raise); break;
+            case 'o': play_move_given_thresholds(0.20, 0.40, 1.00, 1.00, prob_adjusted_for_no_of_players, bot_can_raise); break;
+            case 'u': play_move_given_thresholds(0.50, 0.75, 1.00, 1.00, prob_adjusted_for_no_of_players, bot_can_raise); break;
+            default: assert(false);
+        }
+    }
+
 }
 
 void bot::play_move_round_3()
 {  
     double prob_not_losing_all_players=pow(prob_not_losing_against_player, players_in_game.size()-1);
+    double prob_adjusted_for_no_of_players=pow(prob_not_losing_against_player, sqrt( 2*double(players_in_game.size()-1) -1 ));
 
-    cout<<"Bots hand is\n"<<player_hand;
-    cout<<"The prob the bot wins or ties against 1 player is :"<<prob_not_losing_against_player<<endl;
-    cout<<"The prob the bot wins or ties against all player is :"<<prob_not_losing_all_players<<endl;
+    //cout<<"Bots hand is\n"<<player_hand;
 
-    if (money_in_hand<current_bet-bet_in_round) fold();
-    else if (current_bet==0) check();
-    else call();
+    bool bot_can_call=(money_in_hand>=current_bet-bet_in_round), bot_can_raise=(money_in_hand>=current_bet+bet_amount-bet_in_round)&&(no_of_raises<max_no_of_raises);
+
+    if (!bot_can_call) {
+        fold();
+        return;
+    }
+
+    if (current_bet==0){
+        switch (bot_nature){
+            case 'c': {
+                if (money_in_hand<bet_amount || prob_adjusted_for_no_of_players<=0.50) check();
+                else open();
+                break;
+            }
+            case 'o': {
+                if (money_in_hand<bet_amount || prob_adjusted_for_no_of_players<=0.30) check();
+                else open();
+                break;
+            }
+            case 'u': {
+                if (money_in_hand<bet_amount || prob_adjusted_for_no_of_players<=0.70) check();
+                else open();
+                break;
+            }
+            default: assert(false);
+        }
+    }
+    else if(no_of_raises==0){
+        switch (bot_nature){
+            case 'c': play_move_given_thresholds(0.15, 0.30, 0.60, 0.75, prob_adjusted_for_no_of_players, bot_can_raise); break;
+            case 'o': play_move_given_thresholds(0.05, 0.15, 0.40, 0.60, prob_adjusted_for_no_of_players, bot_can_raise); break;
+            case 'u': play_move_given_thresholds(0.25, 0.45, 0.75, 0.90, prob_adjusted_for_no_of_players, bot_can_raise); break;
+            default: assert(false);
+        }
+    }
+    else if (no_of_raises==1){
+        switch (bot_nature){
+            case 'c': play_move_given_thresholds(0.20, 0.35, 0.80, 0.90, prob_adjusted_for_no_of_players, bot_can_raise); break;
+            case 'o': play_move_given_thresholds(0.10, 0.25, 0.60, 0.80, prob_adjusted_for_no_of_players, bot_can_raise); break;
+            case 'u': play_move_given_thresholds(0.30, 0.50, 0.85, 1.00, prob_adjusted_for_no_of_players, bot_can_raise); break;
+            default: assert(false);
+        }
+    }
+    else if (no_of_raises==2){
+        switch (bot_nature){
+            case 'c': play_move_given_thresholds(0.30, 0.50, 0.85, 0.95, prob_adjusted_for_no_of_players, bot_can_raise); break;
+            case 'o': play_move_given_thresholds(0.20, 0.40, 0.75, 0.90, prob_adjusted_for_no_of_players, bot_can_raise); break;
+            case 'u': play_move_given_thresholds(0.40, 0.65, 0.90, 1.00, prob_adjusted_for_no_of_players, bot_can_raise); break;
+            default: assert(false);
+        }
+    }
+    else {
+        switch (bot_nature){
+            case 'c': play_move_given_thresholds(0.30, 0.60, 1.00, 1.00, prob_adjusted_for_no_of_players, bot_can_raise); break;
+            case 'o': play_move_given_thresholds(0.20, 0.40, 1.00, 1.00, prob_adjusted_for_no_of_players, bot_can_raise); break;
+            case 'u': play_move_given_thresholds(0.50, 0.75, 1.00, 1.00, prob_adjusted_for_no_of_players, bot_can_raise); break;
+            default: assert(false);
+        }
+    }
+
 }
 
 void bot::play_move_given_thresholds(double p1, double p2, double p3, double p4, double prob, bool bot_can_raise)

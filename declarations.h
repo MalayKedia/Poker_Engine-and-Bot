@@ -2,14 +2,18 @@
 #define POKER_H
 
 #include <cstdlib>
+#include <iostream>
+using namespace std;
 #include <string>
 #include <vector>
 #include <algorithm>
 #include <cmath>
 #include <ctime>
+#include<chrono>
+using namespace chrono_literals;
+#include<thread>
+using namespace this_thread;
 #include <assert.h>
-#include <iostream>
-using namespace std;
 
 #define small_blind 10
 #define large_blind 20
@@ -117,6 +121,7 @@ struct bot: public player       //subclass of player, autoplayed by computer
     double prob_not_losing_against_player;
 
     int strength_preflop();
+    void calculate_probability(int round_no);
     void calculate_prob_round_1();
     void calculate_prob_round_2();
     void calculate_prob_round_3();

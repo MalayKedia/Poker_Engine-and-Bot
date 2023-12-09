@@ -43,7 +43,7 @@ void reorder_players_in_game(int starting_player_index) //circularly reorders th
 
 void set_up_game_environment() //sets undealed card deck to standard 52 deck, asks for no. of players, initialises game variables
 {
-    //int seed=1702061355;
+    //int seed=1702128349;
     int seed=time(NULL);
     srand(seed);
     cout<<"Starting the game\nThe seed value is: "<<seed<<endl<<endl;
@@ -61,8 +61,8 @@ void set_up_game_environment() //sets undealed card deck to standard 52 deck, as
     while (true){
         cout<<"Enter the number of players playing: ";
         cin>>no_of_players;
-        if (no_of_players>1 && no_of_players<=10) break;
-        else cout<<"Invalid, number of players must lie between 2 and 10 (both inclusive)\n";
+        if (no_of_players>1 && no_of_players<=6) break;
+        else cout<<"Invalid, number of players must lie between 2 and 6 (both inclusive)\n";
     }
     cout<<endl;
     //initialises game variables
