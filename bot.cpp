@@ -11,7 +11,7 @@ bot::bot(): player()
         if (bot_nature=='c' || bot_nature=='u' || bot_nature=='o' || bot_nature=='r') break;
         else cout<<"Invalid, not a valid bot type\n";
     }
-    player_name=string("Bot (") + bot_nature + ") - " + to_string(player_ID);
+    player_name=string("Bot(") + bot_nature + ") - " + to_string(player_ID);
     
     if(bot_nature=='r'){
         int nature=rand_int_v_u(3);
@@ -34,10 +34,8 @@ void bot::play_move(int round_no) //just matches the current bet as of now
     assert(unseen_cards.card_list.size()==52);
     if (round_no==0)
     {
+        play_move_preflop();
         played_first_move_in_round=true;
-        if (money_in_hand<current_bet-bet_in_round) fold();
-        else if (current_bet==0) check();
-        else call();
     }
     else if (round_no==1) 
     {
@@ -70,6 +68,111 @@ void bot::play_move(int round_no) //just matches the current bet as of now
     else if (current_bet==0) check();
     else call();
 */
+
+int bot::strength_preflop()
+{
+    if (player_hand[0].value==player_hand[1].value){
+        int value=player_hand[0].value;
+        if (value>=5) return 1;
+        else if (value>=3) return 2;
+        else return 3;
+    }
+    if (player_hand[0].suit==player_hand[1].suit){
+        int high=max(player_hand[0].value,player_hand[1].value), low=min(player_hand[0].value,player_hand[1].value);
+        switch (high){
+            case 12: {
+                if (low>=8) return 1;
+                else if (low>=4) return 2;
+                else return 3;
+            }
+            case 11:{
+                if (low>=8) return 1;
+                else if (low>=7) return 2;
+                else return 3;
+            }
+            case 10:{
+                if (low>=8) return 1;
+                else if (low>=6) return 2;
+                else if (low>=5) return 3;
+                else return 4;
+            }
+            case 9:{
+                if (low>=7) return 1;
+                else if (low>=6) return 2;
+                else if (low>=5) return 3;
+                else return 4;
+            }
+            case 8:{
+                if (low>=8) return 1;
+                else if (low>=6) return 2;
+                else if (low>=5) return 3;
+                else return 4;
+            }
+            case 7:{
+                if (low>=6) return 2;
+                else if (low>=4) return 3;
+                else return 4;
+            }
+            case 6:{
+                if (low>=4) return 3;
+                else return 4;
+            }
+            case 5:{
+                if (low>=3) return 3;
+                else return 4;
+            }
+            case 4:{
+                if (low>=3) return 3;
+                else return 4;
+            }
+            case 3:{
+                if (low>=2) return 3;
+                else return 4;
+            }
+            default: return 4;
+        }
+    }
+    else{
+        int high=max(player_hand[0].value,player_hand[1].value), low=min(player_hand[0].value,player_hand[1].value);
+        switch (high){
+            case 12: {
+                if (low>=8) return 1;
+                else if (low>=6) return 2;
+                else if (low>=4) return 3;
+                else return 4;
+            }
+            case 11:{
+                if (low>=9) return 1;
+                else if (low>=8) return 2;
+                else if (low>=6) return 2;
+                else return 4;
+            }
+            case 10:{
+                if (low>=8) return 2;
+                else if (low>=6) return 3;
+                else return 4;
+            }
+            case 9:{
+                if (low>=8) return 2;
+                else if (low>=6) return 3;
+                else return 4;
+            }
+            case 8:{
+                if (low>=6) return 3;
+                else return 4;
+            }
+            case 7:{
+                if (low>=5) return 3;
+                else return 4;
+            }
+            case 6:{
+                if (low>=5) return 3;
+                else return 4;
+            }
+            default: return 4;
+        }
+    }
+}
 
 void bot::calculate_prob_round_1()
 {
@@ -139,6 +242,61 @@ void bot::calculate_prob_round_3()
     prob_not_losing_against_player=double(cases_bot_wins)/cases_all;
 }
 
+void bot::play_move_preflop()
+{
+    int strength=strength_preflop();
+    bool bot_can_call=(money_in_hand>=current_bet-bet_in_round), bot_can_raise=(money_in_hand>=current_bet+bet_amount-bet_in_round)&&(no_of_raises<max_no_of_raises);
+
+    if (!bot_can_call) {
+        fold();
+        return;
+    }
+
+    switch (bot_nature){
+        case 'c':{
+            if (strength==3 || strength==4){
+                if (current_bet<=2*bet_amount) call();
+                else fold();
+            }
+            else if (strength==2){
+                if (current_bet<=2*bet_amount && bot_can_raise) raise();
+                else call();
+            }
+            else if (strength==1){
+                if (current_bet<=3*bet_amount && bot_can_raise) raise();
+                else call();
+            }
+        }
+        case 'u':{
+            if (strength==4){
+                if (current_bet==bet_amount) call();
+                else fold();
+            }
+            else if (strength==3 || strength==2){
+                if (current_bet<=2*bet_amount) call();
+                else fold();
+            }
+            else if (strength==1){
+                if (current_bet<=2*bet_amount && bot_can_raise) raise();
+                else call();
+            }
+        }
+        case 'o':{
+            if (strength==3 || strength==4) {call();}
+            else if (strength==2){
+                if (current_bet<=3*bet_amount && bot_can_raise) raise();
+                else call();
+            }
+            else{
+                if (current_bet<=4*bet_amount && bot_can_raise) raise();
+                else call();
+            }
+        }
+    }
+}
+
+
+
 void bot::play_move_round_1()
 {
     cout<<"Bots hand is\n"<<player_hand;
@@ -150,27 +308,23 @@ void bot::play_move_round_1()
         fold();
         return;
     }
-    if (money_in_hand<bet_amount){
-        check();
-        return;
-    }
 
     if (!played_first_move_in_round){
         if (current_bet==0){
             switch (bot_nature){
                 case 'c': {
-                    if (prob_not_losing_against_player>0.40) open();
-                    else check();
+                    if (money_in_hand<bet_amount || prob_not_losing_against_player<=0.40) check();
+                    else open();
                     break;
                 }
                 case 'o': {
-                    if (prob_not_losing_against_player>0.10) open();
-                    else check();
+                    if (money_in_hand<bet_amount || prob_not_losing_against_player<=0.10) check();
+                    else open();
                     break;
                 }
                 case 'u': {
-                    if (prob_not_losing_against_player>0.70) open();
-                    else check();
+                    if (money_in_hand<bet_amount || prob_not_losing_against_player<=0.70) check();
+                    else open();
                     break;
                 }
                 default: assert(false);
@@ -178,18 +332,18 @@ void bot::play_move_round_1()
         }
         else{
             switch (bot_nature){
-                case 'c': play_move_given_thresholds(0.05, 0.15, 0.40, 0.70, prob_not_losing_against_player, bot_can_raise); break;
-                case 'o': play_move_given_thresholds(0.01, 0.05, 0.25, 0.50, prob_not_losing_against_player, bot_can_raise); break;
-                case 'u': play_move_given_thresholds(0.10, 0.30, 0.65, 0.85, prob_not_losing_against_player, bot_can_raise); break;
+                case 'c': play_move_given_thresholds(0.10, 0.25, 0.60, 0.75, prob_not_losing_against_player, bot_can_raise); break;
+                case 'o': play_move_given_thresholds(0.05, 0.15, 0.40, 0.60, prob_not_losing_against_player, bot_can_raise); break;
+                case 'u': play_move_given_thresholds(0.20, 0.45, 0.75, 0.90, prob_not_losing_against_player, bot_can_raise); break;
                 default: assert(false);
             }
         }
     }
     else{
         switch (bot_nature){
-            case 'c': play_move_given_thresholds(0.0, 0.30, 0.60, 0.80, prob_not_losing_against_player, bot_can_raise); break;
-            case 'o': play_move_given_thresholds(0.00, 0.00, 0.40, 0.70, prob_not_losing_against_player, bot_can_raise); break;
-            case 'u': play_move_given_thresholds(0.20, 0.50, 0.80, 0.95, prob_not_losing_against_player, bot_can_raise); break;
+            case 'c': play_move_given_thresholds(0.15, 0.35, 0.80, 0.90, prob_not_losing_against_player, bot_can_raise); break;
+            case 'o': play_move_given_thresholds(0.00, 0.00, 0.60, 0.80, prob_not_losing_against_player, bot_can_raise); break;
+            case 'u': play_move_given_thresholds(0.40, 0.60, 0.90, 1.00, prob_not_losing_against_player, bot_can_raise); break;
             default: assert(false);
         }
     }
