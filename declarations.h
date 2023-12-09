@@ -54,8 +54,8 @@ struct deck //contains a list of cards as a vector
 
     void print();                           //prints whole deck
 
-    vector<int> score_five_cards();   //operates on a deck of 5 cards and returns a vector which can be lexicographically compared to score any two decks of 5 cards 
-    vector<int> score_seven_cards();   //operates on deck of 7 cards and returns highest possible score
+    int score_five_cards();   //operates on a deck of 5 cards and returns a vector which can be lexicographically compared to score any two decks of 5 cards 
+    int score_seven_cards();   //operates on deck of 7 cards and returns highest possible score
 };
 
 deck operator+(card const &c1, card const &c2);

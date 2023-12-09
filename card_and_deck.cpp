@@ -155,13 +155,13 @@ void deck::print() //prints whole deck
     cout<<endl;
 }
 
-vector<int> deck::score_five_cards()   //operates on a deck of 5 cards and returns a vector which can be lexicographically compared to score any two decks of 5 cards 
+int deck::score_five_cards()   //operates on a deck of 5 cards and returns a vector which can be lexicographically compared to score any two decks of 5 cards 
 {
     assert(this->card_list.size()==5);
    /*First value:
     High card- 0, Pair- 1, Two pair- 2, Three of a kind- 3, Straight- 4, Flush- 5, Full House- 6, 4 of a kind- 7, Straight Flush- 8 */
    
-    vector<int> score;
+    int score=0;
 
     int list_of_card_value[13], list_of_card_suite[4], list_of_card_value_sorted[13];
     for (int i=0; i<13; i++) list_of_card_value[i]=0;
@@ -178,74 +178,63 @@ vector<int> deck::score_five_cards()   //operates on a deck of 5 cards and retur
     for (int i=0; i<9; i++) if (list_of_card_value[i]==1 && list_of_card_value[i+1]==1 && list_of_card_value[i+2]==1 && list_of_card_value[i+3]==1 && list_of_card_value[i+4]==1) straight=true;
 
     if (straight && flush) {
-        score.push_back(8);
         int highest_card=12;
         while (list_of_card_value[highest_card]!=1) highest_card--;
-        score.push_back(highest_card);
+        score=8*pow(13,5)+highest_card;
     }
     else if (list_of_card_value_sorted[0]==4){
-        score.push_back(7);
         int quadruple_card=12, single_card=12;
         while (list_of_card_value[quadruple_card]!=4) quadruple_card--;
         while (list_of_card_value[single_card]!=1) single_card--;
-        score.push_back(quadruple_card);
-        score.push_back(single_card);
+        score=7*pow(13,5)+13*quadruple_card+single_card;
     }
     else if (list_of_card_value_sorted[0]==3 && list_of_card_value_sorted[1]==2){
-        score.push_back(6);
         int triple_card=12, double_card=12;
         while (list_of_card_value[triple_card]!=3) triple_card--;
         while (list_of_card_value[double_card]!=2) double_card--;
-        score.push_back(triple_card);
-        score.push_back(double_card);
+        score=6*pow(13,5)+13*triple_card+double_card;
     }
     else if (flush) {
-        score.push_back(5);
-        for(int i=12; i>=0; i--)  if (list_of_card_value[i]==1) score.push_back(i);
+        score=5;
+        for(int i=12; i>=0; i--)  if (list_of_card_value[i]==1) score=score*13+i;
     }
     else if (straight){
-        score.push_back(4);
         int highest_card=12;
         while (list_of_card_value[highest_card]!=1) highest_card--;
-        score.push_back(highest_card);
+        score=4*pow(13,5)+highest_card;
     }
     else if (list_of_card_value_sorted[0]==3){
-        score.push_back(3);
         int triple_card=12;
         while (list_of_card_value[triple_card]!=3) triple_card--;
-        score.push_back(triple_card);
-        for(int i=12; i>=0; i--)  if (list_of_card_value[i]==1) score.push_back(i);
+        score=3*pow(13,3)+triple_card*pow(13,0);
+        for(int i=12; i>=0; i--)  if (list_of_card_value[i]==1) score=score*13+i;
     }
     else if (list_of_card_value_sorted[0]==2 && list_of_card_value_sorted[1]==2){
-        score.push_back(2);
-        for(int i=12; i>=0; i--)  if (list_of_card_value[i]==2) score.push_back(i);
-        for(int i=12; i>=0; i--)  if (list_of_card_value[i]==1) score.push_back(i);
+        score=2*13*13;
+        for(int i=12; i>=0; i--)  if (list_of_card_value[i]==2) score=score*13+i;
+        for(int i=12; i>=0; i--)  if (list_of_card_value[i]==1) score=score*13+i;
     }
     else if (list_of_card_value_sorted[0]==2){
-        score.push_back(1);
+        score=1*13;
         int double_card=12;
         while (list_of_card_value[double_card]!=2) double_card--;
-        score.push_back(double_card);
-        for(int i=12; i>=0; i--)  if (list_of_card_value[i]==1) score.push_back(i);
+        score=score*13+(double_card);
+        for(int i=12; i>=0; i--)  if (list_of_card_value[i]==1) score=score*13+i;
     }
     else{
-        score.push_back(0);
-        for(int i=12; i>=0; i--)  if (list_of_card_value[i]==1) score.push_back(i);
+        for(int i=12; i>=0; i--)  if (list_of_card_value[i]==1) score=score*13+i;
     }
     return score;
 }
 
-vector<int> deck::score_seven_cards()   //operates on deck of 7 cards and returns highest possible score
+int deck::score_seven_cards()   //operates on deck of 7 cards and returns highest possible score
 {
     assert(this->card_list.size()==7);
     deck d=*this;
-    vector<int> highest_score=(d-d[6]-d[5]).score_five_cards();
+    int highest_score=(d-d[6]-d[5]).score_five_cards();
     for (int i=0; i<5; i++){
         for (int j=i+1; j<7; j++){
-            vector<int> deck_score=(d-d[i]-d[j]).score_five_cards(); 
-
-            if (lexicographical_compare(highest_score.begin(), highest_score.end(), deck_score.begin(), deck_score.end())) highest_score=deck_score;
-//std::lexicographical_compare compares the elements of the two vectors lexicographically. The function returns true if the first range is lexicographically less than the second range and false otherwise
+            highest_score=max(highest_score,(d-d[i]-d[j]).score_five_cards());
         }
     }
     return highest_score;

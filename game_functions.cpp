@@ -153,15 +153,15 @@ void showdown(vector<player*> &winning_players) //returns the vector having winn
     cout<<"The community cards were: \n";
     community_cards.print();
 
-    vector<vector<int>> scores;
+    vector<int> scores;
     for (vector<player*> ::iterator plr=players_in_game.begin(); plr<players_in_game.end(); plr++){
         deck seven_cards=plr[0]->player_hand + community_cards;
         scores.push_back(seven_cards.score_seven_cards());
         cout<<"cards of "<<plr[0]->player_name<<" are:\n"<<plr[0]->player_hand;
     }
-    vector<int> max_score=scores[0];
+    int max_score=scores[0];
     for (int index=1; index<players_in_game.size(); index++){
-        if (lexicographical_compare(max_score.begin(), max_score.end(), scores[index].begin(), scores[index].end())) max_score=scores[index];
+        max_score=max(max_score,scores[index]);
     }
     for (int index=0; index<players_in_game.size(); index++){
         if (scores[index]==max_score){
