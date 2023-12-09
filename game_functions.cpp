@@ -48,7 +48,7 @@ void set_up_game_environment() //sets undealed card deck to standard 52 deck, as
     srand(seed);
     cout<<"Starting the game\nThe seed value is: "<<seed<<endl<<endl;
 
-    cout<<"You are playing limt hold'em\n";
+    cout<<"You are playing limit hold'em\n";
     cout<<"The small blind is "<<small_blind<<" and large blind is "<<large_blind<<endl<<endl;
 
     //setting undealed card deck to standard 52 deck

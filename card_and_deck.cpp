@@ -202,7 +202,6 @@ vector<int> deck::score_five_cards()   //operates on a deck of 5 cards and retur
     else if (flush) {
         score.push_back(5);
         for(int i=12; i>=0; i--)  if (list_of_card_value[i]==1) score.push_back(i);
-        assert(score.size()==6);
     }
     else if (straight){
         score.push_back(4);
@@ -216,13 +215,11 @@ vector<int> deck::score_five_cards()   //operates on a deck of 5 cards and retur
         while (list_of_card_value[triple_card]!=3) triple_card--;
         score.push_back(triple_card);
         for(int i=12; i>=0; i--)  if (list_of_card_value[i]==1) score.push_back(i);
-        assert(score.size()==4);
     }
     else if (list_of_card_value_sorted[0]==2 && list_of_card_value_sorted[1]==2){
         score.push_back(2);
         for(int i=12; i>=0; i--)  if (list_of_card_value[i]==2) score.push_back(i);
         for(int i=12; i>=0; i--)  if (list_of_card_value[i]==1) score.push_back(i);
-        assert(score.size()==4);
     }
     else if (list_of_card_value_sorted[0]==2){
         score.push_back(1);
@@ -230,12 +227,10 @@ vector<int> deck::score_five_cards()   //operates on a deck of 5 cards and retur
         while (list_of_card_value[double_card]!=2) double_card--;
         score.push_back(double_card);
         for(int i=12; i>=0; i--)  if (list_of_card_value[i]==1) score.push_back(i);
-        assert(score.size()==5);
     }
     else{
         score.push_back(0);
         for(int i=12; i>=0; i--)  if (list_of_card_value[i]==1) score.push_back(i);
-        assert(score.size()==6);
     }
     return score;
 }

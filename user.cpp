@@ -20,9 +20,9 @@ void user::play_move(int round_no)
     char move;
     //cout<<"Your cards are: \n"<<player_hand;
     while(true){
-        if (current_bet==0) cout<<"Possible moves are check (c), open (o), fold(f)\n";
-        else if (no_of_raises<max_no_of_raises) cout<<"Possible moves are call (k), raise (r), fold(f)\n";
-        else cout<<"Possible moves are call (k), fold(f)\n";
+        if (current_bet==0) cout<<"Possible moves are check (c), open (o), fold (f)\n";
+        else if (no_of_raises<max_no_of_raises) cout<<"Possible moves are call (k), raise (r), fold (f)\n";
+        else cout<<"Possible moves are call (k), fold (f)\n";
    
         cout<<"Type your move: ";
         cin>>move;

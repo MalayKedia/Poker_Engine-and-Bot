@@ -193,10 +193,10 @@ void bot::calculate_prob_round_1()
         for (int comm2=comm1+1; comm2<47; comm2++){
             vector<int> self_score=(community_cards+player_hand+unseen_cards[comm1]+unseen_cards[comm2]).score_seven_cards();
             deck unseen_cards_now = unseen_cards-unseen_cards[comm1]-unseen_cards[comm2];
-
+            deck comm_cards=community_cards+unseen_cards[comm1]+unseen_cards[comm2];
             for (int other1=0; other1<45; other1++){
                 for (int other2=other1+1; other2<45; other2++){
-                    vector<int> bot_score= (community_cards+unseen_cards[comm1]+unseen_cards[comm2]+unseen_cards_now[other1]+unseen_cards_now[other2]).score_seven_cards();
+                    vector<int> bot_score= (comm_cards+unseen_cards_now[other1]+unseen_cards_now[other2]).score_seven_cards();
                     
                     cases_all++;
                     if (!lexicographical_compare(self_score.begin(), self_score.end(), bot_score.begin(), bot_score.end())) cases_bot_wins++;
@@ -217,10 +217,10 @@ void bot::calculate_prob_round_2()
     for (int comm1=0; comm1<46; comm1++){
         vector<int> self_score=(community_cards+player_hand+unseen_cards[comm1]).score_seven_cards();
         deck unseen_cards_now = unseen_cards-unseen_cards[comm1];
-
+        deck comm_cards=community_cards+unseen_cards[comm1];
         for (int other1=0; other1<45; other1++){
             for (int other2=other1+1; other2<45; other2++){
-                vector<int> bot_score= (community_cards+unseen_cards[comm1]+unseen_cards_now[other1]+unseen_cards_now[other2]).score_seven_cards();
+                vector<int> bot_score= (comm_cards+unseen_cards_now[other1]+unseen_cards_now[other2]).score_seven_cards();
                     
                 cases_all++;
                 if (!lexicographical_compare(self_score.begin(), self_score.end(), bot_score.begin(), bot_score.end())) cases_bot_wins++;
